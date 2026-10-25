@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Card from './Card.astro';
-import { episodeHref, formatDate, formatDuration } from '../../lib/content';
+import { episodeHref, formatDate } from '../../lib/content';
 
 interface Props {
   episode: CollectionEntry<'episodes'>;
@@ -10,10 +10,9 @@ interface Props {
 const { episode, showTitle } = Astro.props;
 const { data } = episode;
 const number = data.episode ? `Ep. ${data.season ? `${data.season}.` : ''}${data.episode}` : '';
-const meta = [showTitle, number, formatDate(data.published), formatDuration(data.durationSeconds)]
+const meta = [showTitle, number, formatDate(data.date), data.durationMinutes && `${data.durationMinutes} min`]
   .filter(Boolean)
   .join(' · ');
-const image = data.image ? { src: data.image, alt: '' } : undefined;
 ---
 
-<Card href={episodeHref(episode)} title={data.title} image={image} meta={meta} />
+<Card href={episodeHref(episode)} title={data.title} image={data.image} meta={meta} placeholder={data.placeholder} />

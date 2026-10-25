@@ -1,40 +1,56 @@
 ---
-import { getCollection } from 'astro:content';
+import { asset, url } from '../lib/paths';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
+import Section from '../components/content/Section.astro';
+import TempLabel from '../components/content/TempLabel.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { site } from '../lib/site';
+import { getVisible } from '../lib/content';
 
-const talent = await getCollection('talent', (t) => t.data.published);
+const talent = await getVisible('talent');
 ---
 
 <BaseLayout title="About">
-  <PageHeader title={`About ${site.name}`} intro={site.description} />
-  <section class="section wrap" aria-labelledby="team-heading">
-    <h2 id="team-heading">The team</h2>
-    {
-      talent.length ? (
-        <ul class="grid">
-          {talent.map((t) => (
-            <li class="person">
-              {t.data.photo && <img src={t.data.photo.src} alt={t.data.photo.alt} loading="lazy" />}
-              <h3>{t.data.name}</h3>
-              {t.data.role && <p class="muted">{t.data.role}</p>}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState message="Team profiles will be added once approved." />
-      )
-    }
-  </section>
+  <PageHeader title={`About ${site.name}`} intro={site.description}>
+    <p>
+      <a href={url('/contact/')}>Contact us</a>
+    </p>
+  </PageHeader>
+
+  <Section id="team" title="The team">
+    {talent.length ? (
+      <ul class="grid">
+        {talent.map((t) => (
+          <li class="person">
+            {t.data.photo && <img src={asset(t.data.photo.src)} alt={t.data.photo.alt} loading="lazy" />}
+            {t.data.placeholder && <TempLabel />}
+            <h3>{t.data.name}</h3>
+            {t.data.role && <p class="muted">{t.data.role}</p>}
+            {t.data.shortBio && <p>{t.data.shortBio}</p>}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="Team profiles will be added once approved." />
+    )}
+  </Section>
 </BaseLayout>
 
 <style>
+  .person {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    align-content: start;
+  }
   .person img {
     aspect-ratio: 4 / 5;
     object-fit: cover;
     margin-bottom: var(--space-2);
     border-radius: var(--radius);
+  }
+  .person h3 {
+    margin: 0;
   }
 </style>

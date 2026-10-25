@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TempLabel from './TempLabel.astro';
+
+interface Props {
+  items: CollectionEntry<'testimonials'>[];
+}
+---
+
+<ul class="testimonials">
+  {Astro.props.items.map(({ data }) => (
+    <li>
+      <figure>
+        {data.placeholder && <TempLabel />}
+        <blockquote>{data.quote}</blockquote>
+        <figcaption>
+          <strong>{data.name}</strong>
+          {[data.role, data.organization].filter(Boolean).join(', ')}
+        </figcaption>
+      </figure>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .testimonials {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  figure {
+    margin: 0;
+  }
+  blockquote {
+    margin: 0 0 var(--space-2);
+    font-size: var(--step-1);
+  }
+  figcaption strong {
+    display: block;
+  }
+</style>

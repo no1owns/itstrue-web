@@ -1,50 +1,53 @@
 ---
+import { url } from '../../lib/paths';
+import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/layout/PageHeader.astro';
+import Section from '../../components/content/Section.astro';
 import EmptyState from '../../components/layout/EmptyState.astro';
 import ShowCard from '../../components/cards/ShowCard.astro';
 import EpisodeCard from '../../components/cards/EpisodeCard.astro';
-import { getEntry } from 'astro:content';
 import { getShows, getEpisodes } from '../../lib/content';
 
 const division = await getEntry('divisions', 'podcasts');
+const name = division?.data.name ?? 'Podcasts';
 const shows = await getShows();
 const showTitles = new Map(shows.map((s) => [s.id, s.data.title]));
 const latest = (await getEpisodes()).slice(0, 6);
 ---
 
-<BaseLayout title={division?.data.name ?? 'Podcasts'} description={division?.data.description}>
-  <PageHeader title={division?.data.name ?? 'Podcasts'} intro={division?.data.tagline} />
+<BaseLayout title={name} description={division?.data.description}>
+  <PageHeader title={name} intro={division?.data.tagline} />
 
-  <section class="section wrap" aria-labelledby="shows-heading">
-    <h2 id="shows-heading">Shows</h2>
-    {
-      shows.length ? (
-        <ul class="grid">
-          {shows.map((show) => (
-            <li>
-              <ShowCard show={show} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState message="No shows published yet." />
-      )
-    }
-  </section>
+  <Section id="shows" title="Shows">
+    {shows.length ? (
+      <ul class="grid">
+        {shows.map((show) => (
+          <li>
+            <ShowCard show={show} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="No shows published yet." />
+    )}
+  </Section>
 
-  {
-    latest.length > 0 && (
-      <section class="section wrap" aria-labelledby="latest-heading">
-        <h2 id="latest-heading">Latest episodes</h2>
-        <ul class="grid">
-          {latest.map((e) => (
-            <li>
-              <EpisodeCard episode={e} showTitle={showTitles.get(e.data.show.id)} />
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+  {latest.length > 0 && (
+    <Section id="latest" title="Latest episodes">
+      <ul class="grid">
+        {latest.map((e) => (
+          <li>
+            <EpisodeCard episode={e} showTitle={showTitles.get(e.data.show.id)} />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  <Section id="guest" title="Be on a show">
+    <a class="button button--ghost" href={url('/book/?type=podcast')}>
+      Guest and sponsorship inquiries
+    </a>
+  </Section>
 </BaseLayout>

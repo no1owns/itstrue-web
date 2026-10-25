@@ -1,25 +1,40 @@
 ---
 // Shared card frame: optional image, a linked title, and a meta line.
 // The whole card is clickable via the title link's stretched hit area.
+// Without an href, the card is static (e.g. a product with no store link yet).
+import { asset } from '../../lib/paths';
+import TempLabel from '../content/TempLabel.astro';
+
 interface Props {
-  href: string;
+  href?: string;
   title: string;
   image?: { src: string; alt: string };
   meta?: string;
   ratio?: '1/1' | '16/9' | '4/5';
+  placeholder?: boolean;
+  external?: boolean;
 }
-const { href, title, image, meta, ratio = '1/1' } = Astro.props;
+const { href, title, image, meta, ratio = '1/1', placeholder = false, external = false } = Astro.props;
 ---
 
 <article class="card">
-  {
-    image && (
-      <img src={image.src} alt={image.alt} loading="lazy" decoding="async" style={`aspect-ratio: ${ratio}`} />
-    )
-  }
+  {image ? (
+    <img src={asset(image.src)} alt={image.alt} loading="lazy" decoding="async" style={`aspect-ratio: ${ratio}`} />
+  ) : (
+    <div class="no-image" style={`aspect-ratio: ${ratio}`} aria-hidden="true" />
+  )}
   <div class="body">
+    {placeholder && <TempLabel />}
     {meta && <p class="meta muted">{meta}</p>}
-    <h3><a href={href}>{title}</a></h3>
+    <h3>
+      {href ? (
+        <a href={href} rel={external ? 'noopener' : undefined}>
+          {title}
+        </a>
+      ) : (
+        title
+      )}
+    </h3>
     <slot />
   </div>
 </article>
@@ -34,15 +49,28 @@ const { href, title, image, meta, ratio = '1/1' } = Astro.props;
     border-radius: var(--radius);
     overflow: hidden;
   }
-  img {
+  img,
+  .no-image {
     width: 100%;
     object-fit: cover;
   }
+  .no-image {
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--color-surface),
+      var(--color-surface) 10px,
+      var(--color-border) 10px,
+      var(--color-border) 11px
+    );
+  }
   .body {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
     padding: var(--space-3);
   }
   .meta {
-    margin-bottom: var(--space-1);
+    margin: 0;
     font-size: var(--step--1);
   }
   h3 {

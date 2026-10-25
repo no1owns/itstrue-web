@@ -1,26 +1,31 @@
 ---
-// Booking and business inquiry form. It posts to PUBLIC_FORM_ENDPOINT,
-// which will be a form service or a host function once hosting is chosen.
-// Until that's set, the form renders but can't be submitted.
-import { inquiryTypes, site } from '../../lib/site';
+// Booking and business inquiry form. GitHub Pages serves static files
+// only, so submissions go to an external form service (e.g. Formspree) set
+// in PUBLIC_FORM_ENDPOINT. Until that's set, the form renders but can't be
+// submitted.
+import { PUBLIC_FORM_ENDPOINT } from 'astro:env/client';
+import { site } from '../../lib/site';
+import { inquiryTypes } from '../../lib/inquiry';
 
 interface Props {
   /** Preselect an inquiry type, e.g. from /book/?type=podcast */
   defaultType?: string;
 }
-const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT?.trim();
+const endpoint = PUBLIC_FORM_ENDPOINT?.trim();
 const { defaultType = 'live-booking' } = Astro.props;
 const fallbackEmail = site.contact.bookings ?? site.contact.general;
 ---
 
 <form class="inquiry" method="post" action={endpoint || undefined} aria-describedby="form-note">
   <p id="form-note" class="note muted">
-    {
-      endpoint
-        ? 'Fields marked * are required.'
-        : 'Online inquiries are not switched on yet.'
-    }
-    {!endpoint && fallbackEmail && <> Email <a href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a> instead.</>}
+    {endpoint ? 'Fields marked * are required.' : 'Online inquiries are not switched on yet.'}
+    {!endpoint && fallbackEmail && (
+      <>
+        {' '}
+        Email <a href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a> instead.
+      </>
+    )}
+    {site.bookingResponseTime && <> We reply {site.bookingResponseTime}.</>}
   </p>
 
   <fieldset>
@@ -48,8 +53,16 @@ const fallbackEmail = site.contact.bookings ?? site.contact.general;
     <div class="field">
       <label for="type">What is this about? *</label>
       <select id="type" name="type" required>
-        {inquiryTypes.map((t) => <option value={t.value} selected={t.value === defaultType}>{t.label}</option>)}
+        {inquiryTypes.map((t) => (
+          <option value={t.value} selected={t.value === defaultType}>
+            {t.label}
+          </option>
+        ))}
       </select>
+    </div>
+    <div class="field">
+      <label for="event-type">Event type</label>
+      <input id="event-type" name="eventType" placeholder="e.g. festival, private event, corporate" />
     </div>
     <div class="field">
       <label for="date">Event date(s)</label>
@@ -64,7 +77,7 @@ const fallbackEmail = site.contact.bookings ?? site.contact.general;
       <input id="audience" name="audience" inputmode="numeric" />
     </div>
     <div class="field">
-      <label for="budget">Budget</label>
+      <label for="budget">Budget range</label>
       <input id="budget" name="budget" />
     </div>
     <div class="field field--full">
@@ -79,7 +92,9 @@ const fallbackEmail = site.contact.bookings ?? site.contact.general;
     <input id="website" name="_gotcha" tabindex="-1" autocomplete="off" />
   </div>
 
-  <button class="button" type="submit" disabled={!endpoint}>Send inquiry</button>
+  <button class="button" type="submit" disabled={!endpoint}>
+    Send inquiry
+  </button>
 </form>
 
 <style>

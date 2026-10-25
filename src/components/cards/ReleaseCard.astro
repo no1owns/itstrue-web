@@ -1,4 +1,5 @@
 ---
+import { url } from '../../lib/paths';
 import type { CollectionEntry } from 'astro:content';
 import Card from './Card.astro';
 
@@ -7,8 +8,16 @@ interface Props {
 }
 const { release } = Astro.props;
 const { data } = release;
-const type = { single: 'Single', ep: 'EP', album: 'Album', mixtape: 'Mixtape', other: 'Release' }[data.type];
+const type = { single: 'Single', ep: 'EP', album: 'Album', mixtape: 'Mixtape', live: 'Live', other: 'Release' }[
+  data.type
+];
 const meta = [data.artists.join(', '), type, data.releaseDate?.getUTCFullYear()].filter(Boolean).join(' · ');
 ---
 
-<Card href={`/music/releases/${release.id}/`} title={data.title} image={data.artwork} meta={meta} />
+<Card
+  href={url(`/music/releases/${release.id}/`)}
+  title={data.title}
+  image={data.artwork}
+  meta={meta}
+  placeholder={data.placeholder}
+/>

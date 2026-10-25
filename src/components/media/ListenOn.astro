@@ -6,22 +6,20 @@ interface Props {
 const { links, label = 'Listen on' } = Astro.props;
 ---
 
-{
-  links.length > 0 && (
-    <div class="listen-on">
-      <h2 class="label">{label}</h2>
-      <ul>
-        {links.map((link) => (
-          <li>
-            <a class="button button--ghost" href={link.url} rel="noopener">
-              {link.platform}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
+{links.length > 0 && (
+  <div class="listen-on">
+    <h2 class="label">{label}</h2>
+    <ul>
+      {links.map((link) => (
+        <li>
+          <a class="button button--ghost" href={link.url} rel="noopener">
+            {link.platform}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
 
 <style>
   .label {

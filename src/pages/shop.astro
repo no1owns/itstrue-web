@@ -2,25 +2,39 @@
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
+import Section from '../components/content/Section.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
+import ProductCard from '../components/cards/ProductCard.astro';
 import { site } from '../lib/site';
+import { getProducts } from '../lib/content';
 
-// Commerce lives on an external platform (to be confirmed). Until a store
-// embed is chosen, this page links out to site.shopUrl when one is set.
+// The store is external (platform pending). Product cards link out to the
+// store's product pages; checkout never happens on this site.
 const division = await getEntry('divisions', 'shop');
+const name = division?.data.name ?? 'Shop';
+const products = await getProducts();
 ---
 
-<BaseLayout title={division?.data.name ?? 'Shop'} description={division?.data.description}>
-  <PageHeader title={division?.data.name ?? 'Shop'} intro={division?.data.tagline} />
-  <div class="wrap">
-    {
-      site.shopUrl ? (
-        <a class="button" href={site.shopUrl} rel="noopener">
-          Visit the store
-        </a>
-      ) : (
-        <EmptyState message="The store is coming soon." />
-      )
-    }
-  </div>
+<BaseLayout title={name} description={division?.data.description}>
+  <PageHeader title={name} intro={division?.data.tagline}>
+    {site.shopUrl && (
+      <a class="button" href={site.shopUrl} rel="noopener">
+        Visit the store
+      </a>
+    )}
+  </PageHeader>
+
+  <Section id="products" title="Products" hideTitle>
+    {products.length ? (
+      <ul class="grid">
+        {products.map((p) => (
+          <li>
+            <ProductCard product={p} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="The store is coming soon." />
+    )}
+  </Section>
 </BaseLayout>

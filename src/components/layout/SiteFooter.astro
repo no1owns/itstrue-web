@@ -1,29 +1,36 @@
 ---
+import { url } from '../../lib/paths';
 import { site } from '../../lib/site';
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="wrap">
-    {
-      site.social.length > 0 && (
-        <ul class="social" aria-label="Social media">
-          {site.social.map((s) => (
-            <li>
-              <a href={s.url} rel="me noopener">
-                {s.platform}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    {site.social.length > 0 && (
+      <ul class="social" aria-label="Social media">
+        {site.social.map((s) => (
+          <li>
+            <a href={s.url} rel="me noopener">
+              {s.platform}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
     <ul class="links">
-      <li><a href="/book/">Bookings</a></li>
-      <li><a href="/epk/">Press kit</a></li>
-      <li><a href="/contact/">Contact</a></li>
+      <li>
+        <a href={url('/book/')}>Bookings</a>
+      </li>
+      <li>
+        <a href={url('/epk/')}>Press kit</a>
+      </li>
+      <li>
+        <a href={url('/contact/')}>Contact</a>
+      </li>
     </ul>
-    <p class="muted">&copy; {year} {site.name}</p>
+    <p class="muted">
+      &copy; {year} {site.name}
+    </p>
   </div>
 </footer>
 

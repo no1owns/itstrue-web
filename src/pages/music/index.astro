@@ -1,4 +1,5 @@
 ---
+import { url } from '../../lib/paths';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/layout/PageHeader.astro';
 import EmptyState from '../../components/layout/EmptyState.astro';
@@ -15,22 +16,22 @@ const releases = await getReleases();
 
   <section class="section wrap" aria-labelledby="releases-heading">
     <h2 id="releases-heading">Releases</h2>
-    {
-      releases.length ? (
-        <ul class="grid">
-          {releases.map((r) => (
-            <li>
-              <ReleaseCard release={r} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState message="No releases published yet." />
-      )
-    }
+    {releases.length ? (
+      <ul class="grid">
+        {releases.map((r) => (
+          <li>
+            <ReleaseCard release={r} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="No releases published yet." />
+    )}
   </section>
 
-  <section class="section wrap">
-    <p><a class="button button--ghost" href="/book/?type=music-production">Music production inquiries</a></p>
+  <section class="section wrap" aria-label="Production">
+    <a class="button button--ghost" href={url('/book/?type=music-production')}>
+      Music production inquiries
+    </a>
   </section>
 </BaseLayout>

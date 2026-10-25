@@ -1,13 +1,14 @@
 ---
+import { url } from '../../lib/paths';
 import { site } from '../../lib/site';
 import { getDivisions, divisionHref } from '../../lib/content';
 
 const divisions = (await getDivisions()).filter((d) => d.data.inNav);
 const links = [
   ...divisions.map((d) => ({ href: divisionHref(d), label: d.data.name })),
-  { href: '/events/', label: 'Events' },
-  { href: '/about/', label: 'About' },
-  { href: '/contact/', label: 'Contact' },
+  { href: url('/events/'), label: 'Events' },
+  { href: url('/about/'), label: 'About' },
+  { href: url('/contact/'), label: 'Contact' },
 ];
 const current = Astro.url.pathname;
 const isCurrent = (href: string) => current === href || (href !== '/' && current.startsWith(href));
@@ -16,24 +17,26 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 {site.announcement && <p class="announcement">{site.announcement}</p>}
 <header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href="/">{site.name}</a>
+    <a class="brand" href={url('/')}>
+      {site.name}
+    </a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
       Menu
     </button>
     <nav id="site-nav" aria-label="Main">
       <ul>
-        {
-          links.map((link) => (
-            <li>
-              <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
-                {link.label}
-              </a>
-            </li>
-          ))
-        }
+        {links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
-    <a class="button book" href="/book/">Book</a>
+    <a class="button book" href={url('/book/')}>
+      Book
+    </a>
   </div>
 </header>
 

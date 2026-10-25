@@ -1,24 +1,37 @@
 ---
+import { asset, url } from '../../lib/paths';
 import type { GetStaticPaths } from 'astro';
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/layout/PageHeader.astro';
 import YouTubeEmbed from '../../components/media/YouTubeEmbed.astro';
 import JsonLd from '../../components/seo/JsonLd.astro';
-import { formatDate } from '../../lib/content';
+import TempLabel from '../../components/content/TempLabel.astro';
+import { formatDate, getVisible } from '../../lib/content';
 
 export const getStaticPaths = (async () => {
-  const events = await getCollection('events', (e) => e.data.published);
+  const events = await getVisible('events');
   return events.map((event) => ({ params: { event: event.id }, props: { event } }));
 }) satisfies GetStaticPaths;
 
 const { event } = Astro.props;
 const { data } = event;
 const isPast = (data.end ?? data.start) < new Date();
-const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: data.timezone ?? 'UTC', timeZoneName: 'short' }).format(data.start);
+const time = new Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: data.timezone ?? 'UTC',
+  timeZoneName: 'short',
+}).format(data.start);
 const place = [data.venue, data.city].filter(Boolean).join(', ');
-const statusLabel = { announced: '', 'on-sale': '', 'sold-out': 'Sold out', cancelled: 'Cancelled', postponed: 'Postponed' }[data.status];
-const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' }[data.status as string] ?? 'EventScheduled';
+const statusLabel = {
+  announced: '',
+  'on-sale': '',
+  'sold-out': 'Sold out',
+  cancelled: 'Cancelled',
+  postponed: 'Postponed',
+}[data.status];
+const eventStatus =
+  { cancelled: 'EventCancelled', postponed: 'EventPostponed' }[data.status as string] ?? 'EventScheduled';
 ---
 
 <BaseLayout title={data.title} description={data.description} image={data.image?.src}>
@@ -39,22 +52,36 @@ const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' }
 
   <PageHeader title={data.title} eyebrow={isPast ? 'Past event' : statusLabel || 'Upcoming'}>
     <p class="when">
-      <time datetime={data.start.toISOString()}>{formatDate(data.start, data.timezone)}, {time}</time>
-      {place && <><br />{place}</>}
+      <time datetime={data.start.toISOString()}>
+        {formatDate(data.start, data.timezone)}, {time}
+      </time>
+      {place && (
+        <>
+          <br />
+          {place}
+        </>
+      )}
     </p>
-    {
-      !isPast && data.ticketUrl && data.status !== 'cancelled' && data.status !== 'sold-out' && (
-        <a class="button" href={data.ticketUrl} rel="noopener">Get tickets</a>
-      )
-    }
+    {!isPast && data.ticketUrl && data.status !== 'cancelled' && data.status !== 'sold-out' && (
+      <a class="button" href={data.ticketUrl} rel="noopener">
+        Get tickets
+      </a>
+    )}
   </PageHeader>
 
   <div class="wrap event">
-    {data.image && <img src={data.image.src} alt={data.image.alt} />}
+    {data.placeholder && <TempLabel />}
+    {data.image && <img src={asset(data.image.src)} alt={data.image.alt} />}
     {data.description && <p class="prewrap">{data.description}</p>}
-    {data.lineup.length > 0 && <p><strong>Lineup:</strong> {data.lineup.join(', ')}</p>}
+    {data.lineup.length > 0 && (
+      <p>
+        <strong>Lineup:</strong> {data.lineup.join(', ')}
+      </p>
+    )}
     {data.recapYoutubeId && <YouTubeEmbed id={data.recapYoutubeId} title={`${data.title} recap`} />}
-    <p><a href="/events/">All events</a></p>
+    <p>
+      <a href={url('/events/')}>All events</a>
+    </p>
   </div>
 </BaseLayout>
 
@@ -65,5 +92,6 @@ const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' }
   .event {
     display: grid;
     gap: var(--space-4);
+    justify-items: start;
   }
 </style>

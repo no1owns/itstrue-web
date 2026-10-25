@@ -10,18 +10,33 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
     "astro": "astro",
-    "test": "node --test \"tests/**/*.test.mjs\"",
-    "sync:feeds": "node scripts/sync-feeds.mjs"
+    "check": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:links": "node scripts/check-links.mjs",
+    "check:a11y": "node scripts/check-a11y.mjs",
+    "inventory": "node scripts/asset-inventory.mjs",
+    "inventory:check": "node scripts/asset-inventory.mjs --check",
+    "validate": "npm run lint && npm run format:check && npm run check && npm run inventory:check && npm run build && npm run check:links && npm run check:a11y"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",
-    "astro": "7.3.8",
-    "fast-xml-parser": "5.11.2"
+    "astro": "7.3.8"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
-    "typescript": "5.9.3"
+    "@eslint/js": "10.0.1",
+    "axe-core": "4.14.0",
+    "eslint": "10.12.0",
+    "eslint-plugin-astro": "3.2.1",
+    "eslint-plugin-jsx-a11y-x": "0.2.0",
+    "globals": "17.13.0",
+    "playwright": "1.63.0",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1"
   }
 }

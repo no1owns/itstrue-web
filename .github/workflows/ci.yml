@@ -9,8 +9,12 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  validate:
     runs-on: ubuntu-latest
+    env:
+      # Build under the same kind of base path GitHub Pages uses, so a link
+      # that forgets the base path fails the link check.
+      BASE_PATH: /${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,11 +25,26 @@ jobs:
 
       - run: npm ci
 
-      - name: Unit tests
-        run: npm test
+      - name: Install Chromium for the accessibility scan
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Formatting
+        run: npm run format:check
 
       - name: Type check
         run: npm run check
 
+      - name: Asset inventory is up to date
+        run: npm run inventory:check
+
       - name: Build
         run: npm run build
+
+      - name: Internal links
+        run: npm run check:links
+
+      - name: Accessibility (axe, WCAG 2.2 AA)
+        run: npm run check:a11y

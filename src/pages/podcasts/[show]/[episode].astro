@@ -1,41 +1,52 @@
 ---
+import { url } from '../../../lib/paths';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/layout/PageHeader.astro';
+import TempLabel from '../../../components/content/TempLabel.astro';
 import YouTubeEmbed from '../../../components/media/YouTubeEmbed.astro';
 import SpotifyEmbed from '../../../components/media/SpotifyEmbed.astro';
-import AudioPlayer from '../../../components/media/AudioPlayer.astro';
 import ListenOn from '../../../components/media/ListenOn.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
-import { getShows, getEpisodes, formatDate, formatDuration } from '../../../lib/content';
+import { getShows, getEpisodes, episodeSlug, formatDate } from '../../../lib/content';
 
 export const getStaticPaths = (async () => {
   const shows = new Map((await getShows()).map((s) => [s.id, s]));
   return (await getEpisodes()).map((episode) => ({
-    params: { show: episode.data.show.id, episode: episode.data.slug },
+    params: { show: episode.data.show.id, episode: episodeSlug(episode) },
     props: { episode, show: shows.get(episode.data.show.id)! },
   }));
 }) satisfies GetStaticPaths;
 
 const { episode, show } = Astro.props;
 const { data } = episode;
-const meta = [formatDate(data.published), formatDuration(data.durationSeconds), data.explicit && 'Explicit']
+const meta = [formatDate(data.date), data.durationMinutes && `${data.durationMinutes} min`, data.explicit && 'Explicit']
   .filter(Boolean)
   .join(' · ');
-const summary = data.description.split('\n')[0]?.slice(0, 160);
+const summary = data.description?.split('\n')[0]?.slice(0, 160);
+// Episode-specific links first, then the show's general listening links.
+const links = data.links.length ? data.links : show.data.links;
 ---
 
-<BaseLayout title={`${data.title} | ${show.data.title}`} description={summary} image={data.image} type="video.episode">
+<BaseLayout
+  title={`${data.title} | ${show.data.title}`}
+  description={summary}
+  image={data.image?.src}
+  type="video.episode"
+>
   <JsonLd
     slot="head"
     data={{
       '@type': 'PodcastEpisode',
       name: data.title,
-      datePublished: data.published?.toISOString(),
+      datePublished: data.date?.toISOString().slice(0, 10),
       description: summary,
       ...(data.episode && { episodeNumber: data.episode }),
-      ...(data.audioUrl && { associatedMedia: { '@type': 'MediaObject', contentUrl: data.audioUrl } }),
-      partOfSeries: { '@type': 'PodcastSeries', name: show.data.title, url: new URL(`/podcasts/${show.id}/`, Astro.site ?? Astro.url).href },
+      partOfSeries: {
+        '@type': 'PodcastSeries',
+        name: show.data.title,
+        url: new URL(url(`/podcasts/${show.id}/`), Astro.site ?? Astro.url).href,
+      },
     }}
   />
 
@@ -44,25 +55,25 @@ const summary = data.description.split('\n')[0]?.slice(0, 160);
   </PageHeader>
 
   <div class="wrap episode">
+    {data.placeholder && <TempLabel />}
     {data.youtubeId && <YouTubeEmbed id={data.youtubeId} title={data.title} />}
-    {data.audioUrl && <AudioPlayer src={data.audioUrl} type={data.audioType} title={data.title} />}
-    {!data.audioUrl && data.spotifyEpisodeId && <SpotifyEmbed type="episode" id={data.spotifyEpisodeId} title={data.title} />}
-
+    {data.spotifyEpisodeId && <SpotifyEmbed type="episode" id={data.spotifyEpisodeId} title={data.title} />}
     {data.description && <div class="prewrap notes">{data.description}</div>}
-    {data.guests.length > 0 && <p><strong>Guests:</strong> {data.guests.join(', ')}</p>}
-
-    <ListenOn links={show.data.links} label="Also on" />
-
-    {
-      data.transcript && (
-        <details class="transcript">
-          <summary>Transcript</summary>
-          <div class="prewrap">{data.transcript}</div>
-        </details>
-      )
-    }
-
-    <p><a href={`/podcasts/${show.id}/`}>All {show.data.title} episodes</a></p>
+    {data.guests.length > 0 && (
+      <p>
+        <strong>Guests:</strong> {data.guests.join(', ')}
+      </p>
+    )}
+    <ListenOn links={links} />
+    {data.transcript && (
+      <details class="transcript">
+        <summary>Transcript</summary>
+        <div class="prewrap">{data.transcript}</div>
+      </details>
+    )}
+    <p>
+      <a href={url(`/podcasts/${show.id}/`)}>All {show.data.title} episodes</a>
+    </p>
   </div>
 </BaseLayout>
 
@@ -70,6 +81,11 @@ const summary = data.description.split('\n')[0]?.slice(0, 160);
   .episode {
     display: grid;
     gap: var(--space-4);
+    justify-items: start;
+  }
+  .episode > :global(youtube-embed),
+  .episode > :global(iframe) {
+    width: 100%;
   }
   .notes {
     max-width: var(--measure);

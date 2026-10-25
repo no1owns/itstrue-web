@@ -1,9 +1,11 @@
 ---
+import { url } from '../lib/paths';
 import '../styles/global.css';
 import SEOHead from '../components/seo/SEOHead.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import type { ComponentProps } from 'astro/types';
+import { isPreview } from '../lib/content';
 
 type Props = ComponentProps<typeof SEOHead>;
 ---
@@ -14,12 +16,22 @@ type Props = ComponentProps<typeof SEOHead>;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <SEOHead {...Astro.props} />
     <slot name="head" />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    {isPreview && (
+      <aside class="preview-notice" aria-label="Preview notice">
+        <p>
+          Preview build. Items marked “Temporary content” or “Pending approval” are not final and are hidden on the live
+          site.
+        </p>
+      </aside>
+    )}
     <SiteHeader />
     <main id="main" tabindex="-1">
       <slot />
@@ -40,6 +52,15 @@ type Props = ComponentProps<typeof SEOHead>;
   }
   .skip-link:focus {
     top: var(--space-2);
+  }
+  .preview-notice p {
+    margin: 0 auto;
+  }
+  .preview-notice {
+    padding: var(--space-2) var(--gutter);
+    border-bottom: 2px dashed var(--color-text);
+    font-size: var(--step--1);
+    text-align: center;
   }
   main:focus {
     outline: none;

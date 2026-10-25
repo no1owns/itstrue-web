@@ -1,11 +1,13 @@
 // Content model. Each collection is a folder of JSON files under
-// src/content/, so any Git-based CMS (Decap) or a hosted one (Sanity) can
+// src/content/, so a Git-based CMS (Decap) or a hosted one (Sanity) can
 // edit it later without changing the pages. See docs/content-guide.md.
+//
+// Every collection has a `placeholder` flag. Placeholder entries are
+// clearly labelled temporary content: they render (with a visible label)
+// on preview builds and are left out of production builds.
 import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { readdir, readFile } from 'node:fs/promises';
-import path from 'node:path';
 
 const url = z.url();
 
@@ -19,6 +21,11 @@ const link = z.object({
   platform: z.string().min(1),
   url,
 });
+
+const common = {
+  published: z.boolean().default(true),
+  placeholder: z.boolean().default(false),
+};
 
 const json = (folder: string) => glob({ pattern: '**/*.json', base: `./src/content/${folder}` });
 
@@ -38,7 +45,39 @@ const divisions = defineCollection({
     accent: z.string().optional(),
     order: z.number().int().default(100),
     inNav: z.boolean().default(true),
-    published: z.boolean().default(true),
+    ...common,
+  }),
+});
+
+/**
+ * Media asset inventory. Every image, video, audio file or social post the
+ * site uses is recorded here with its source and usage rights.
+ * docs/asset-inventory.csv is generated from these files (npm run inventory).
+ */
+const mediaStatus = ['requested', 'received', 'in-review', 'approved', 'live', 'retired'] as const;
+const mediaRights = ['owned', 'licensed', 'third-party-credit', 'pending', 'not-cleared'] as const;
+const media = defineCollection({
+  loader: json('media'),
+  schema: z.object({
+    name: z.string().min(1),
+    type: z.enum(['video', 'audio', 'image', 'document', 'social-post', 'logo', 'other']),
+    provider: z.enum(['youtube', 'spotify', 'instagram', 'tiktok', 'soundcloud', 'apple-music', 'file', 'other']),
+    /** Public URL, or a path under /public for files. */
+    url: z.string().min(1),
+    /** Provider ID for embeds, e.g. a YouTube video ID. */
+    embedId: z.string().optional(),
+    division: z.string().optional(),
+    pages: z.array(z.string()).default([]),
+    status: z.enum(mediaStatus),
+    rights: z.enum(mediaRights),
+    rightsHolder: z.string().optional(),
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+    suppliedBy: z.string().optional(),
+    dateReceived: z.string().optional(),
+    /** Offer as a download in the press kit. */
+    epk: z.boolean().default(false),
+    notes: z.string().optional(),
   }),
 });
 
@@ -48,9 +87,10 @@ const talent = defineCollection({
     name: z.string().min(1),
     role: z.string().optional(),
     bio: z.string().optional(),
+    shortBio: z.string().optional(),
     photo: image.optional(),
     links: z.array(link).default([]),
-    published: z.boolean().default(true),
+    ...common,
   }),
 });
 
@@ -62,87 +102,48 @@ const shows = defineCollection({
     artwork: image.optional(),
     hosts: z.array(reference('talent')).default([]),
     status: z.enum(['active', 'hiatus', 'ended']).default('active'),
-    feeds: z
-      .object({
-        rss: url.optional(),
-        youtubePlaylistId: z.string().optional(),
-      })
-      .default({}),
     /** Listen-on links: Spotify, Apple Podcasts, YouTube, etc. */
     links: z.array(link).default([]),
+    /** Public RSS feed URL, shown as a "subscribe" link. Not imported. */
+    rssUrl: url.optional(),
+    spotifyShowId: z.string().optional(),
     order: z.number().int().default(100),
-    published: z.boolean().default(true),
+    ...common,
   }),
 });
 
-const episodeSchema = z.object({
-  show: reference('shows'),
-  slug: z.string().min(1),
-  guid: z.string().min(1),
-  title: z.string().min(1),
-  published: z.coerce.date().optional(),
-  description: z.string().default(''),
-  audioUrl: url.optional(),
-  audioType: z.string().optional(),
-  durationSeconds: z.number().nonnegative().optional(),
-  image: z.string().optional(),
-  season: z.number().int().positive().optional(),
-  episode: z.number().int().positive().optional(),
-  explicit: z.boolean().default(false),
-  youtubeId: z.string().optional(),
-  spotifyEpisodeId: z.string().optional(),
-  guests: z.array(z.string()).default([]),
-  transcript: z.string().optional(),
-  featured: z.boolean().default(false),
-  hidden: z.boolean().default(false),
-});
-
-async function readJsonFiles(dir: string): Promise<{ name: string; data: any }[]> {
-  let names: string[];
-  try {
-    names = (await readdir(dir)).filter((n) => n.endsWith('.json'));
-  } catch {
-    return [];
-  }
-  return Promise.all(names.map(async (name) => ({ name, data: JSON.parse(await readFile(path.join(dir, name), 'utf8')) })));
-}
-
 /**
- * Episodes come from the feed snapshots in src/data/feeds (written by
- * `npm run sync:feeds`). Editors can override or enrich any episode with
- * src/content/episode-overrides/<show>/<episode-slug>.json; override fields
- * win over feed fields.
+ * One file per episode, at src/content/episodes/<show-slug>/<episode-slug>.json.
+ * Episodes are entered by hand from the podcast host's metadata; audio and
+ * video stay on the host, YouTube or Spotify.
  */
 const episodes = defineCollection({
-  loader: {
-    name: 'feed-snapshots',
-    load: async ({ store, parseData, generateDigest }) => {
-      store.clear();
-      const root = process.cwd();
-      for (const { data: snapshot } of await readJsonFiles(path.join(root, 'src/data/feeds'))) {
-        const overrides = new Map(
-          (await readJsonFiles(path.join(root, 'src/content/episode-overrides', snapshot.show))).map((o) => [
-            o.name.replace(/\.json$/, ''),
-            o.data,
-          ]),
-        );
-        for (const episode of snapshot.episodes ?? []) {
-          const id = `${snapshot.show}/${episode.slug}`;
-          const raw = { ...episode, ...overrides.get(episode.slug), show: snapshot.show, slug: episode.slug };
-          const data = await parseData({ id, data: raw });
-          store.set({ id, data, digest: generateDigest(raw) });
-        }
-      }
-    },
-  },
-  schema: episodeSchema,
+  loader: json('episodes'),
+  schema: z.object({
+    show: reference('shows'),
+    title: z.string().min(1),
+    date: z.coerce.date().optional(),
+    description: z.string().optional(),
+    image: image.optional(),
+    season: z.number().int().positive().optional(),
+    episode: z.number().int().positive().optional(),
+    durationMinutes: z.number().positive().optional(),
+    explicit: z.boolean().default(false),
+    youtubeId: z.string().optional(),
+    spotifyEpisodeId: z.string().optional(),
+    links: z.array(link).default([]),
+    guests: z.array(z.string()).default([]),
+    transcript: z.string().optional(),
+    featured: z.boolean().default(false),
+    ...common,
+  }),
 });
 
 const releases = defineCollection({
   loader: json('releases'),
   schema: z.object({
     title: z.string().min(1),
-    type: z.enum(['single', 'ep', 'album', 'mixtape', 'other']),
+    type: z.enum(['single', 'ep', 'album', 'mixtape', 'live', 'other']),
     artists: z.array(z.string().min(1)).min(1),
     releaseDate: z.coerce.date().optional(),
     artwork: image.optional(),
@@ -154,9 +155,8 @@ const releases = defineCollection({
     smartLink: url.optional(),
     links: z.array(link).default([]),
     credits: z.array(z.object({ role: z.string(), name: z.string() })).default([]),
-    division: reference('divisions').prefault('music'),
     featured: z.boolean().default(false),
-    published: z.boolean().default(true),
+    ...common,
   }),
 });
 
@@ -176,8 +176,39 @@ const events = defineCollection({
     lineup: z.array(z.string()).default([]),
     image: image.optional(),
     recapYoutubeId: z.string().optional(),
-    division: reference('divisions').prefault('entertainment'),
-    published: z.boolean().default(true),
+    ...common,
+  }),
+});
+
+/**
+ * Merchandise shown on /shop. The store itself is external (platform to be
+ * confirmed): each product links out to its page there.
+ */
+const products = defineCollection({
+  loader: json('products'),
+  schema: z.object({
+    title: z.string().min(1),
+    category: z.string().optional(),
+    image: image.optional(),
+    /** Display text only, e.g. "$35". Checkout pricing comes from the store. */
+    priceLabel: z.string().optional(),
+    url: url.optional(),
+    soldOut: z.boolean().default(false),
+    order: z.number().int().default(100),
+    ...common,
+  }),
+});
+
+/** Only quotes MoneyTakers has supplied with the speaker's permission. */
+const testimonials = defineCollection({
+  loader: json('testimonials'),
+  schema: z.object({
+    quote: z.string().min(1),
+    name: z.string().min(1),
+    role: z.string().optional(),
+    organization: z.string().optional(),
+    permissionConfirmed: z.boolean(),
+    ...common,
   }),
 });
 
@@ -189,8 +220,19 @@ const press = defineCollection({
     url: url.optional(),
     date: z.coerce.date().optional(),
     quote: z.string().optional(),
-    published: z.boolean().default(true),
+    ...common,
   }),
 });
 
-export const collections = { divisions, talent, shows, episodes, releases, events, press };
+export const collections = {
+  divisions,
+  media,
+  talent,
+  shows,
+  episodes,
+  releases,
+  events,
+  products,
+  testimonials,
+  press,
+};

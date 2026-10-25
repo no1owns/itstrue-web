@@ -1,4 +1,5 @@
 ---
+import { url } from '../../lib/paths';
 import type { CollectionEntry } from 'astro:content';
 import Card from './Card.astro';
 import { formatDate } from '../../lib/content';
@@ -16,4 +17,11 @@ const meta = [formatDate(data.start, data.timezone), [data.venue, data.city].fil
   .join(' · ');
 ---
 
-<Card href={`/events/${event.id}/`} title={data.title} image={data.image} meta={meta} ratio="16/9" />
+<Card
+  href={url(`/events/${event.id}/`)}
+  title={data.title}
+  image={data.image}
+  meta={meta}
+  ratio="16/9"
+  placeholder={data.placeholder}
+/>

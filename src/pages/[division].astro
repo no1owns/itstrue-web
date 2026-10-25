@@ -1,6 +1,7 @@
 ---
 // Landing page for any division with template "generic". Adding a new
 // business line is a new file in src/content/divisions/, not new code.
+import { asset, url } from '../lib/paths';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
@@ -18,8 +19,12 @@ const { data } = division;
 <BaseLayout title={data.name} description={data.description} image={data.hero?.src}>
   <PageHeader title={data.name} intro={data.tagline} />
   <div class="wrap">
-    {data.hero && <img src={data.hero.src} alt={data.hero.alt} />}
+    {data.hero && <img src={asset(data.hero.src)} alt={data.hero.alt} />}
     {data.description && <p class="prewrap">{data.description}</p>}
-    <p><a class="button" href="/book/">Get in touch</a></p>
+    <p>
+      <a class="button" href={url('/book/')}>
+        Get in touch
+      </a>
+    </p>
   </div>
 </BaseLayout>

@@ -1,13 +1,17 @@
 ---
+import { asset } from '../../../lib/paths';
 import type { GetStaticPaths } from 'astro';
+import { getEntries } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/layout/PageHeader.astro';
+import Section from '../../../components/content/Section.astro';
+import TempLabel from '../../../components/content/TempLabel.astro';
 import EmptyState from '../../../components/layout/EmptyState.astro';
 import EpisodeCard from '../../../components/cards/EpisodeCard.astro';
 import ListenOn from '../../../components/media/ListenOn.astro';
+import SpotifyEmbed from '../../../components/media/SpotifyEmbed.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
-import { getEntries } from 'astro:content';
-import { getShows, getEpisodes } from '../../../lib/content';
+import { getShows, getEpisodes, isVisible } from '../../../lib/content';
 
 export const getStaticPaths = (async () => {
   const shows = await getShows();
@@ -15,51 +19,58 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { show } = Astro.props;
+const { data } = show;
 const episodes = await getEpisodes(show.id);
-const hosts = (await getEntries(show.data.hosts)).filter((h) => h?.data.published);
-const rss = show.data.feeds.rss;
+const hosts = (await getEntries(data.hosts)).filter((h) => h && isVisible(h));
+const links = [...data.links, ...(data.rssUrl ? [{ platform: 'RSS', url: data.rssUrl }] : [])];
 ---
 
-<BaseLayout title={show.data.title} description={show.data.description} image={show.data.artwork?.src}>
-  <link slot="head" rel="alternate" type="application/rss+xml" title={show.data.title} href={rss} />
+<BaseLayout title={data.title} description={data.description} image={data.artwork?.src}>
+  {data.rssUrl && <link slot="head" rel="alternate" type="application/rss+xml" title={data.title} href={data.rssUrl} />}
   <JsonLd
     slot="head"
     data={{
       '@type': 'PodcastSeries',
-      name: show.data.title,
-      description: show.data.description,
-      image: show.data.artwork?.src,
-      webFeed: rss,
+      name: data.title,
+      description: data.description,
+      image: data.artwork?.src,
+      webFeed: data.rssUrl,
     }}
   />
 
-  <PageHeader title={show.data.title} eyebrow="Podcast">
+  <PageHeader title={data.title} eyebrow="Podcast">
     <div class="show-intro">
-      {show.data.artwork && <img class="artwork" src={show.data.artwork.src} alt={show.data.artwork.alt} width="240" height="240" />}
-      <div>
-        {show.data.description && <p class="prewrap">{show.data.description}</p>}
+      {data.artwork && (
+        <img class="artwork" src={asset(data.artwork.src)} alt={data.artwork.alt} width="240" height="240" />
+      )}
+      <div class="details">
+        {data.placeholder && <TempLabel />}
+        {data.description && <p class="prewrap">{data.description}</p>}
         {hosts.length > 0 && <p class="muted">Hosted by {hosts.map((h) => h.data.name).join(', ')}</p>}
-        <ListenOn links={[...show.data.links, ...(rss ? [{ platform: 'RSS', url: rss }] : [])]} />
+        <ListenOn links={links} />
       </div>
     </div>
   </PageHeader>
 
-  <section class="section wrap" aria-labelledby="episodes-heading">
-    <h2 id="episodes-heading">Episodes</h2>
-    {
-      episodes.length ? (
-        <ul class="grid">
-          {episodes.map((e) => (
-            <li>
-              <EpisodeCard episode={e} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState message="Episodes will appear here once the show's feed is connected." />
-      )
-    }
-  </section>
+  {data.spotifyShowId && (
+    <Section id="listen" title="Listen" hideTitle>
+      <SpotifyEmbed type="show" id={data.spotifyShowId} title={data.title} />
+    </Section>
+  )}
+
+  <Section id="episodes" title="Episodes">
+    {episodes.length ? (
+      <ul class="grid">
+        {episodes.map((e) => (
+          <li>
+            <EpisodeCard episode={e} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="No episodes published yet." />
+    )}
+  </Section>
 </BaseLayout>
 
 <style>
@@ -69,9 +80,14 @@ const rss = show.data.feeds.rss;
     align-items: start;
   }
   @media (min-width: 48rem) {
-    .show-intro {
+    .show-intro:has(.artwork) {
       grid-template-columns: 15rem 1fr;
     }
+  }
+  .details {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
   }
   .artwork {
     border-radius: var(--radius);

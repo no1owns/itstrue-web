@@ -1,67 +1,98 @@
 ---
+import { asset, url } from '../lib/paths';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
+import Section from '../components/content/Section.astro';
+import TempLabel from '../components/content/TempLabel.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import { site } from '../lib/site';
+import { getVisible } from '../lib/content';
+import { isCleared, isUsable } from '../lib/media';
 
-// Electronic press kit. Bios come from talent records, coverage from press
-// records. Downloadable assets (photos, stage plot, rider) are added once
-// supplied and cleared; see docs/asset-inventory.csv.
-const talent = await getCollection('talent', (t) => t.data.published);
-const press = (await getCollection('press', (p) => p.data.published)).sort(
-  (a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0),
-);
+// Electronic press kit for promoters: bios, downloadable assets (photos,
+// logo, stage plot, rider) and press coverage. Downloads come from media
+// inventory entries marked "epk": true.
+const talent = await getVisible('talent');
+const downloads = (await getCollection('media', (a) => a.data.epk)).filter(isUsable);
+const press = (await getVisible('press')).sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
 const pressEmail = site.contact.press ?? site.contact.bookings;
 ---
 
 <BaseLayout title="Press kit" description={`Electronic press kit for ${site.name}.`}>
-  <PageHeader title="Press kit">
+  <PageHeader title="Press kit" intro="Bios, photos and technical details for promoters and press.">
     <div class="actions">
-      <a class="button" href="/book/">Booking inquiry</a>
-      {pressEmail && <a class="button button--ghost" href={`mailto:${pressEmail}`}>Press contact</a>}
+      <a class="button" href={url('/book/')}>
+        Booking inquiry
+      </a>
+      {pressEmail && (
+        <a class="button button--ghost" href={`mailto:${pressEmail}`}>
+          Press contact
+        </a>
+      )}
     </div>
   </PageHeader>
 
-  <section class="section wrap" aria-labelledby="bios-heading">
-    <h2 id="bios-heading">Bios</h2>
-    {
-      talent.length ? (
-        talent.map((t) => (
-          <article class="bio">
-            {t.data.photo && <img src={t.data.photo.src} alt={t.data.photo.alt} loading="lazy" width="320" height="400" />}
-            <div>
-              <h3>{t.data.name}</h3>
-              {t.data.role && <p class="muted">{t.data.role}</p>}
-              {t.data.bio && <p class="prewrap">{t.data.bio}</p>}
-              {t.data.photo?.credit && <p class="muted">Photo: {t.data.photo.credit}</p>}
-            </div>
-          </article>
-        ))
-      ) : (
-        <EmptyState message="Bios will be added once approved." />
-      )
-    }
-  </section>
+  <Section id="bios" title="Bios">
+    {talent.length ? (
+      talent.map((t) => (
+        <article class="bio">
+          {t.data.photo && (
+            <img src={asset(t.data.photo.src)} alt={t.data.photo.alt} loading="lazy" width="320" height="400" />
+          )}
+          <div>
+            {t.data.placeholder && <TempLabel />}
+            <h3>{t.data.name}</h3>
+            {t.data.role && <p class="muted">{t.data.role}</p>}
+            {t.data.bio && <p class="prewrap">{t.data.bio}</p>}
+            {t.data.photo?.credit && <p class="muted">Photo: {t.data.photo.credit}</p>}
+          </div>
+        </article>
+      ))
+    ) : (
+      <EmptyState message="Bios will be added once approved." />
+    )}
+  </Section>
 
-  {
-    press.length > 0 && (
-      <section class="section wrap" aria-labelledby="press-heading">
-        <h2 id="press-heading">Press</h2>
-        <ul class="press">
-          {press.map((p) => (
-            <li>
-              {p.data.quote && <blockquote>{p.data.quote}</blockquote>}
-              <p>
-                <strong>{p.data.outlet}</strong>:{' '}
-                {p.data.url ? <a href={p.data.url} rel="noopener">{p.data.headline}</a> : p.data.headline}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+  <Section id="downloads" title="Downloads">
+    {downloads.length ? (
+      <ul class="downloads">
+        {downloads.map((d) => (
+          <li>
+            <a href={asset(d.data.url)} download>
+              {d.data.name}
+            </a>
+            {!isCleared(d) && <TempLabel kind="pending" />}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="Press photos, logo, stage plot and tech rider will be added once supplied." />
+    )}
+  </Section>
+
+  {press.length > 0 && (
+    <Section id="press" title="Press">
+      <ul class="press">
+        {press.map((p) => (
+          <li>
+            {p.data.placeholder && <TempLabel />}
+            {p.data.quote && <blockquote>{p.data.quote}</blockquote>}
+            <p>
+              <strong>{p.data.outlet}</strong>:{' '}
+              {p.data.url ? (
+                <a href={p.data.url} rel="noopener">
+                  {p.data.headline}
+                </a>
+              ) : (
+                p.data.headline
+              )}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
 </BaseLayout>
 
 <style>
@@ -76,15 +107,21 @@ const pressEmail = site.contact.press ?? site.contact.bookings;
     margin-bottom: var(--space-5);
   }
   @media (min-width: 48rem) {
-    .bio {
+    .bio:has(img) {
       grid-template-columns: 16rem 1fr;
     }
   }
+  .downloads,
   .press {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-3);
     padding: 0;
     list-style: none;
+  }
+  .downloads a {
+    display: inline-block;
+    padding-block: var(--space-2);
+    margin-right: var(--space-2);
   }
   blockquote {
     margin: 0 0 var(--space-2);

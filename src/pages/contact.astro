@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/paths';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
 import { site } from '../lib/site';
@@ -12,34 +13,37 @@ const emails = [
 
 <BaseLayout title="Contact">
   <PageHeader title="Contact">
-    <p><a class="button" href="/book/">Send a booking or business inquiry</a></p>
+    <p>
+      <a class="button" href={url('/book/')}>
+        Send a booking or business inquiry
+      </a>
+    </p>
+    {site.bookingResponseTime && <p class="muted">We reply to inquiries {site.bookingResponseTime}.</p>}
   </PageHeader>
   <div class="wrap">
-    {
-      emails.length > 0 && (
-        <dl class="emails">
-          {emails.map((e) => (
-            <>
-              <dt>{e.label}</dt>
-              <dd>
-                <a href={`mailto:${e.address}`}>{e.address}</a>
-              </dd>
-            </>
-          ))}
-        </dl>
-      )
-    }
-    {
-      site.social.length > 0 && (
-        <ul class="social">
-          {site.social.map((s) => (
-            <li>
-              <a href={s.url} rel="me noopener">{s.platform}</a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    {emails.length > 0 && (
+      <dl class="emails">
+        {emails.map((e) => (
+          <>
+            <dt>{e.label}</dt>
+            <dd>
+              <a href={`mailto:${e.address}`}>{e.address}</a>
+            </dd>
+          </>
+        ))}
+      </dl>
+    )}
+    {site.social.length > 0 && (
+      <ul class="social">
+        {site.social.map((s) => (
+          <li>
+            <a href={s.url} rel="me noopener">
+              {s.platform}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 </BaseLayout>
 

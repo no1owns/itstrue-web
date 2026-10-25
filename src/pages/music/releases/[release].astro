@@ -1,4 +1,5 @@
 ---
+import { asset } from '../../../lib/paths';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/layout/PageHeader.astro';
@@ -6,6 +7,7 @@ import SpotifyEmbed from '../../../components/media/SpotifyEmbed.astro';
 import YouTubeEmbed from '../../../components/media/YouTubeEmbed.astro';
 import ListenOn from '../../../components/media/ListenOn.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
+import TempLabel from '../../../components/content/TempLabel.astro';
 import { getReleases, formatDate, formatDuration } from '../../../lib/content';
 
 export const getStaticPaths = (async () => {
@@ -18,7 +20,12 @@ const isSingle = data.type === 'single';
 const links = [...(data.smartLink ? [{ platform: 'All platforms', url: data.smartLink }] : []), ...data.links];
 ---
 
-<BaseLayout title={`${data.title} by ${data.artists.join(', ')}`} description={data.description} image={data.artwork?.src} type={isSingle ? 'music.song' : 'music.album'}>
+<BaseLayout
+  title={`${data.title} by ${data.artists.join(', ')}`}
+  description={data.description}
+  image={data.artwork?.src}
+  type={isSingle ? 'music.song' : 'music.album'}
+>
   <JsonLd
     slot="head"
     data={{
@@ -37,43 +44,44 @@ const links = [...(data.smartLink ? [{ platform: 'All platforms', url: data.smar
 
   <div class="wrap release">
     <div class="media">
-      {data.artwork && <img src={data.artwork.src} alt={data.artwork.alt} width="480" height="480" />}
+      {data.artwork && <img src={asset(data.artwork.src)} alt={data.artwork.alt} width="480" height="480" />}
       {data.spotifyId && <SpotifyEmbed type={isSingle ? 'track' : 'album'} id={data.spotifyId} title={data.title} />}
     </div>
     <div>
+      {data.placeholder && <TempLabel />}
       {data.description && <p class="prewrap">{data.description}</p>}
       <ListenOn links={links} label="Stream" />
-      {
-        data.tracks.length > 0 && (
-          <>
-            <h2>Tracklist</h2>
-            <ol class="tracks">
-              {data.tracks.map((t) => (
-                <li>
-                  {t.title} {t.durationSeconds && <span class="muted">{formatDuration(t.durationSeconds)}</span>}
-                </li>
-              ))}
-            </ol>
-          </>
-        )
-      }
-      {
-        data.credits.length > 0 && (
-          <>
-            <h2>Credits</h2>
-            <dl class="credits">
-              {data.credits.map((c) => (
-                <>
-                  <dt>{c.role}</dt>
-                  <dd>{c.name}</dd>
-                </>
-              ))}
-            </dl>
-          </>
-        )
-      }
+      {data.tracks.length > 0 && (
+        <>
+          <h2>Tracklist</h2>
+          <ol class="tracks">
+            {data.tracks.map((t) => (
+              <li>
+                {t.title} {t.durationSeconds && <span class="muted">{formatDuration(t.durationSeconds)}</span>}
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+      {data.credits.length > 0 && (
+        <>
+          <h2>Credits</h2>
+          <dl class="credits">
+            {data.credits.map((c) => (
+              <>
+                <dt>{c.role}</dt>
+                <dd>{c.name}</dd>
+              </>
+            ))}
+          </dl>
+        </>
+      )}
     </div>
-    {data.youtubeId && <div class="video"><YouTubeEmbed id={data.youtubeId} title={data.title} /></div>}
+    {data.youtubeId && (
+      <div class="video">
+        <YouTubeEmbed id={data.youtubeId} title={data.title} />
+      </div>
+    )}
   </div>
 </BaseLayout>
 

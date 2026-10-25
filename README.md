@@ -1,14 +1,18 @@
 # moneytakers-web
 
-Website for MoneyTakers: podcasts and original shows, music and production, live entertainment and bookings, and merchandise.
+Website for MoneyTakers, a multifaceted entertainment business: podcasts and original shows, music and production, live entertainment and bookings, and clothing and merchandise.
 
-**Status:** foundation in place (Phase 2 of the [proposal](docs/architecture-proposal.md)). Page structure, content model, media embeds, podcast feed sync and the booking form are built. There's no MoneyTakers content yet, and the visual design is a neutral placeholder until the creative direction is chosen.
+**Status:** foundation built. The site has its page structure, content models, media embeds and booking form, plus automated checks and GitHub Pages deployment. Content is clearly labelled placeholder material, and the visual design is a neutral stand-in until the creative direction is reviewed.
+
+- Development URL: https://no1owns.github.io/moneytakers-web/ (`noindex`; published from `main`)
 
 ## Docs
 
-- [Architecture and implementation proposal](docs/architecture-proposal.md)
-- [Content guide](docs/content-guide.md): how to add shows, episodes, releases, events and more
-- [Content and asset inventory](docs/asset-inventory.csv): every supplied asset and its usage rights
+- [Architecture proposal and decisions](docs/architecture-proposal.md)
+- [Open items: dependencies and decisions](docs/open-items.md)
+- [Content guide](docs/content-guide.md): how to add shows, episodes, releases, events, products and media
+- [Deployment](docs/deployment.md): GitHub Pages setup, form service, custom domain
+- [Asset inventory](docs/asset-inventory.csv): generated from `src/content/media/`
 
 ## Develop
 
@@ -16,39 +20,55 @@ Requires Node 22.12 or later.
 
 ```sh
 npm ci
-npm run dev        # local site at http://localhost:4321
-npm test           # feed parser tests
-npm run check      # type check
-npm run build      # static site in dist/
-npm run sync:feeds # pull new podcast episodes into src/data/feeds/
+npm run dev           # local site at http://localhost:4321
 ```
 
-Copy `.env.example` to `.env` to set:
+| Command                                 | What it does                                                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run build`                         | Static site in `dist/`                                                                                                         |
+| `npm run preview`                       | Serve the built site                                                                                                           |
+| `npm run lint`                          | ESLint, including accessibility rules for markup                                                                               |
+| `npm run format` / `format:check`       | Prettier                                                                                                                       |
+| `npm run check`                         | Type check and content schema validation                                                                                       |
+| `npm run inventory` / `inventory:check` | Regenerate / verify `docs/asset-inventory.csv`                                                                                 |
+| `npm run check:links`                   | Every internal link resolves (run after build)                                                                                 |
+| `npm run check:a11y`                    | axe scan of every page, phone and desktop, light and dark (run after build; needs Chromium: `npx playwright install chromium`) |
+| `npm run validate`                      | All of the above, in CI order                                                                                                  |
 
-- `SITE_URL`: the final public origin. While it's blank, every page is marked `noindex`, `robots.txt` disallows crawling, and no sitemap is written. Set it only on the production deployment.
-- `PUBLIC_FORM_ENDPOINT`: where the booking form posts. While it's blank, the form is visible but can't be submitted.
+### Environment
+
+Copy `.env.example` to `.env` for local overrides. All are optional:
+
+| Variable                | Purpose                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| `SITE_URL`, `BASE_PATH` | Public origin and path prefix. Set automatically by the deploy workflow; leave empty locally. |
+| `SITE_LIVE`             | `true` only at launch. Until then, pages are `noindex` and placeholders show with labels.     |
+| `PUBLIC_FORM_ENDPOINT`  | External form service URL for the booking form. While empty, the form can't be submitted.     |
 
 ## Structure
 
 ```
 src/
-  content.config.ts    content model (schemas for every collection)
-  content/             JSON content, one folder per collection
-  data/site.json       site-wide settings
-  data/feeds/          podcast feed snapshots (written by sync:feeds)
-  lib/                 content queries, settings, feed parser
-  components/          layout, media, cards, forms, SEO
-  layouts/             BaseLayout
-  pages/               routes
-  styles/tokens.css    design tokens (placeholder values)
-scripts/sync-feeds.mjs feed sync
-tests/                 parser tests and synthetic fixtures
+  content.config.ts      content models (schemas for every collection)
+  content/               JSON content, one folder per collection
+  data/site.json         site-wide settings
+  lib/                   content queries, media rules, settings, base-path helpers
+  components/
+    layout/              header, footer, page header, empty state
+    content/             section, temporary-content label, testimonials
+    cards/               show, episode, release, event, product cards
+    media/               YouTube, Spotify, media inventory embed, listen-on links
+    forms/               booking inquiry form
+    seo/                 meta tags, JSON-LD
+  layouts/BaseLayout.astro
+  pages/                 routes
+  styles/tokens.css      design tokens (placeholder values)
+scripts/                 inventory generator, link and accessibility checks
+.github/workflows/       CI and GitHub Pages deployment
 ```
+
+Internal links must use `url()` from `src/lib/paths.ts` so they work under the GitHub Pages base path; CI builds under a base path to catch any that don't.
 
 ## Media
 
-Large video and audio files are not committed here. Media is embedded from YouTube, Spotify, the podcast host, or a media CDN. YouTube players load only when the visitor presses play.
-
-## Deployment
-
-Hosting isn't chosen yet (Cloudflare Pages is recommended). The output is a plain static site: build with `npm run build` and serve the `dist/` folder. The **Sync podcast feeds** workflow commits new episodes on a schedule; the host should rebuild on every push to `main`, plus once a day so finished events move to "Past".
+No video or audio files are committed. Media is embedded from YouTube or Spotify, or linked to where it's hosted. YouTube players load only when the visitor presses play. Every asset is tracked in the media inventory with its rights status, and anything not yet approved stays off the live site.

@@ -1,16 +1,25 @@
 # Content guide
 
-How to add and update content. Every content type is a folder of JSON files under `src/content/`. The file name (without `.json`) becomes the URL slug, so use lowercase words separated by hyphens and don't rename a file once its page is live.
+How to add and update content. Every content type is a folder of JSON files under `src/content/`. The file name (without `.json`) becomes the URL slug, so use lowercase words separated by hyphens, and don't rename a file once its page is live.
 
-A CMS editor will sit on top of these files later (Decap or Sanity, still to be decided). Until then, files can be edited directly on GitHub. Every change goes through a pull request, which is previewed before it reaches the live site.
+Edit files directly on GitHub or locally. Every change goes through a pull request, and CI checks it (schemas, links, accessibility) before it can reach the site. A CMS editor can sit on top of these same files later.
 
-**Content rule:** only add content MoneyTakers has supplied and approved. Leave a field out rather than filling it with placeholder text. Pages hide anything that is missing. Record every image, video and audio file in [`asset-inventory.csv`](asset-inventory.csv) with its usage rights before using it.
+## Ground rules
+
+- **Only add content MoneyTakers has supplied and approved.** Never write testimonials, credentials, releases, products or performances. Leave a field out rather than guessing; pages hide anything that is missing.
+- **Temporary content must be labelled.** Set `"placeholder": true` on any stand-in entry. Placeholders show on preview builds with a "Temporary content" label and are left out of the live site automatically.
+- **Record every media asset** in the media inventory (below) with its usage rights before using it.
+- **Never commit video or audio files.** Use YouTube or Spotify IDs, or links to where the media is hosted.
+
+Every collection also accepts `"published": false` to hide an entry without deleting it.
 
 ## Site settings: `src/data/site.json`
 
-Name, description, contact emails (general, bookings, press), social links, shop URL and an optional announcement banner. Blank values are hidden on the site.
+Name, description, homepage statement (`hero`), contact emails (general, bookings, press), booking response time, social links, store URL and an optional announcement banner. Blank values are hidden on the site.
 
 ```json
+"hero": { "statement": "Approved positioning statement.", "placeholder": false },
+"bookingResponseTime": "within two business days",
 "social": [{ "platform": "Instagram", "url": "https://instagram.com/..." }]
 ```
 
@@ -18,17 +27,47 @@ Name, description, contact emails (general, bookings, press), social links, shop
 
 One file per business line. These drive the main navigation and the homepage.
 
-| Field | Required | Notes |
-|---|---|---|
-| `name` | yes | Shown in navigation |
-| `template` | yes | `podcasts`, `music`, `entertainment`, `shop`, or `generic` |
-| `tagline`, `description` | | |
-| `hero` | | `{ "src": "...", "alt": "..." }` |
-| `order` | | Lower numbers come first in navigation |
-| `inNav` | | `false` keeps it out of the menu |
-| `published` | | `false` hides it everywhere |
+| Field                    | Required | Notes                                                      |
+| ------------------------ | -------- | ---------------------------------------------------------- |
+| `name`                   | yes      | Shown in navigation                                        |
+| `template`               | yes      | `podcasts`, `music`, `entertainment`, `shop`, or `generic` |
+| `tagline`, `description` |          |                                                            |
+| `hero`                   |          | `{ "src": "...", "alt": "..." }`                           |
+| `order`                  |          | Lower numbers come first in navigation                     |
+| `inNav`                  |          | `false` keeps it out of the menu                           |
 
 **Adding a new business line:** create `src/content/divisions/<slug>.json` with `"template": "generic"`. It gets a page at `/<slug>/` and a navigation link. No code changes are needed.
+
+## Media inventory: `src/content/media/`
+
+One file per asset: video, audio, image, document, logo or social post. `docs/asset-inventory.csv` is generated from these files with `npm run inventory`; CI fails if the CSV is out of date.
+
+```json
+{
+  "name": "Different (Live) at Warehouse Live, Houston",
+  "type": "video",
+  "provider": "youtube",
+  "url": "https://youtu.be/...",
+  "embedId": "YouTube video ID",
+  "division": "entertainment",
+  "pages": ["home", "entertainment"],
+  "status": "received",
+  "rights": "pending",
+  "rightsHolder": "Photographer or owner, for credit",
+  "caption": "Shown under the media",
+  "suppliedBy": "Who sent it",
+  "dateReceived": "2026-10-25",
+  "epk": false,
+  "notes": ""
+}
+```
+
+- `status`: `requested`, `received`, `in-review`, `approved`, `live` or `retired`
+- `rights`: `owned`, `licensed`, `third-party-credit`, `pending` or `not-cleared`
+- `pages`: where it appears. `home` and `entertainment` are read today.
+- `epk: true` lists it as a download in the press kit.
+
+**An asset appears on the live site only when its status is `approved` or `live` and its rights are `owned`, `licensed` or `third-party-credit`.** Until then it shows on previews only, labelled "Pending approval". `not-cleared` and `retired` assets never appear.
 
 ## Podcasts
 
@@ -41,48 +80,40 @@ One file per business line. These drive the main navigation and the homepage.
   "artwork": { "src": "https://...", "alt": "Show title cover art" },
   "hosts": ["talent-slug"],
   "status": "active",
-  "feeds": {
-    "rss": "https://feeds.example-host.com/show.xml",
-    "youtubePlaylistId": "PL..."
-  },
+  "spotifyShowId": "Spotify show ID",
+  "rssUrl": "https://feeds.example-host.com/show.xml",
   "links": [
     { "platform": "Spotify", "url": "https://open.spotify.com/show/..." },
-    { "platform": "Apple Podcasts", "url": "https://podcasts.apple.com/..." }
+    { "platform": "Apple Podcasts", "url": "https://podcasts.apple.com/..." },
+    { "platform": "YouTube", "url": "https://www.youtube.com/playlist?list=..." }
   ]
 }
 ```
 
-`status` is `active`, `hiatus` or `ended`. `hosts` refers to files in `src/content/talent/`.
+`status` is `active`, `hiatus` or `ended`. `hosts` refers to files in `src/content/talent/`. `rssUrl` only adds a "subscribe" link; the site does not read the feed.
 
-### Episodes are added automatically
+### Episodes: `src/content/episodes/<show-slug>/<episode-slug>.json`
 
-You don't create episode files. Publish the episode on the podcast host (and on YouTube if it has video) as usual. Then:
-
-1. Every 3 hours, the **Sync podcast feeds** GitHub Action reads each show's RSS feed and YouTube playlist, and commits any changes to `src/data/feeds/<show-slug>.json`. It can also be started by hand from the repository's Actions tab.
-2. That commit triggers a site rebuild, and the episode page appears at `/podcasts/<show-slug>/<episode-slug>/`.
-
-How it works:
-- Episode titles, dates, descriptions, artwork, audio and duration come from the RSS feed. Descriptions are converted to plain text, so formatting such as bold or links in show notes is not carried over.
-- A YouTube video is attached when its title matches the episode title. Prefixes such as "Ep. 12 |" are ignored.
-- An episode's URL is fixed the first time it is synced. Renaming the episode later doesn't break its link.
-- If a feed can't be reached, the previous snapshot is kept, so the archive never goes empty.
-
-To run the sync locally: `npm run sync:feeds` (or `npm run sync:feeds -- <show-slug>`).
-
-### Enriching or correcting an episode: `src/content/episode-overrides/<show-slug>/<episode-slug>.json`
-
-Any field here replaces the feed value for that one episode:
+Copy the metadata from the podcast host. The page is created at `/podcasts/<show-slug>/<episode-slug>/`.
 
 ```json
 {
-  "youtubeId": "abc123",
+  "show": "show-slug",
+  "title": "Episode title",
+  "date": "2026-11-01",
+  "season": 1,
+  "episode": 12,
+  "durationMinutes": 54,
+  "description": "Show notes, as plain text. Blank lines start new paragraphs.",
+  "youtubeId": "YouTube video ID",
+  "spotifyEpisodeId": "Spotify episode ID",
+  "links": [{ "platform": "Apple Podcasts", "url": "https://..." }],
   "guests": ["Guest Name"],
-  "transcript": "Full transcript text...",
-  "featured": true
+  "transcript": "Optional full transcript."
 }
 ```
 
-Use `"youtubeId"` when automatic matching misses a video, `"spotifyEpisodeId"` to show a Spotify player when the feed has no audio file, and `"hidden": true` to remove an episode from the site without touching the feed.
+If an episode has no `links`, the show's links are used. The YouTube player only loads when the visitor presses play.
 
 ## Music releases: `src/content/releases/<slug>.json`
 
@@ -101,15 +132,15 @@ Use `"youtubeId"` when automatic matching misses a video, `"spotifyEpisodeId"` t
 }
 ```
 
-`type` is `single`, `ep`, `album`, `mixtape` or `other`. Use `spotifyId` with the track ID for singles and the album ID for everything else. Mark up to three releases `"featured": true` for the homepage. Releases are entered by hand because each one is a marketing moment, and they are separate from podcast feeds.
+`type` is `single`, `ep`, `album`, `mixtape`, `live` or `other`. Use the track ID for singles and the album ID otherwise. Mark up to three releases `"featured": true` for the homepage.
 
 ## Events: `src/content/events/<slug>.json`
 
 ```json
 {
   "title": "Event title",
-  "start": "2026-12-31T21:00:00-05:00",
-  "timezone": "America/New_York",
+  "start": "2026-12-31T21:00:00-06:00",
+  "timezone": "America/Chicago",
   "venue": "Venue name",
   "city": "City",
   "ticketUrl": "https://...",
@@ -117,17 +148,48 @@ Use `"youtubeId"` when automatic matching misses a video, `"spotifyEpisodeId"` t
 }
 ```
 
-Include the UTC offset in `start`, and set `timezone` so the time displays in the venue's local time. `status` is `announced`, `on-sale`, `sold-out`, `cancelled` or `postponed`. Events move from "Upcoming" to "Past" on the next rebuild after they finish. After the event, add `recapYoutubeId` to turn the page into a recap.
+Include the UTC offset in `start`, and set `timezone` so the time displays in the venue's local time. `status` is `announced`, `on-sale`, `sold-out`, `cancelled` or `postponed`. Events move from "Upcoming" to "Past" the next time the site is built after they finish. After the event, add `recapYoutubeId` to turn the page into a recap.
+
+## Products (merch): `src/content/products/<slug>.json`
+
+The store itself is external. Each product links out to its page there.
+
+```json
+{
+  "title": "Product name",
+  "category": "Apparel",
+  "image": { "src": "https://...", "alt": "Description of the product photo" },
+  "priceLabel": "$35",
+  "url": "https://store.example.com/products/...",
+  "soldOut": false,
+  "order": 1
+}
+```
+
+`priceLabel` is display text only; the store sets the real price at checkout.
+
+## Testimonials: `src/content/testimonials/<slug>.json`
+
+Only quotes MoneyTakers supplies, with the speaker's permission. A testimonial appears only when `permissionConfirmed` is `true`.
+
+```json
+{
+  "quote": "Exact approved wording.",
+  "name": "Speaker name",
+  "role": "Talent buyer",
+  "organization": "Venue or company",
+  "permissionConfirmed": true
+}
+```
 
 ## Talent: `src/content/talent/<slug>.json`
 
-`name`, `role`, `bio`, `photo` (`{ "src", "alt", "credit" }`) and `links`. Talent records feed the About page, the press kit and show host credits.
+`name`, `role`, `shortBio` (About page), `bio` (press kit), `photo` (`{ "src", "alt", "credit" }`) and `links`.
 
 ## Press: `src/content/press/<slug>.json`
 
 `outlet`, `headline`, `url`, `date` and an optional short `quote`. Press items appear in the press kit.
 
-## Images and media
+## Images
 
-- Images: until an image CDN is chosen, small, optimized images can go in `public/images/` and be referenced as `/images/name.webp`. Every image needs `alt` text that describes it. Use `""` only for purely decorative images.
-- **Never commit video or audio files.** Use YouTube or Spotify IDs, or the podcast host's audio URL.
+Full image URLs work anywhere. For files kept in the repo, put small, optimized images in `public/images/` and reference them as `/images/name.webp`; the site adds the deployment base path automatically. Every image needs `alt` text that describes it. Use `""` only for purely decorative images.

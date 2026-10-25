@@ -1,0 +1,8 @@
+{
+  "title": "Placeholder Event",
+  "start": "2027-06-01T20:00:00-05:00",
+  "timezone": "America/Chicago",
+  "venue": "Venue pending",
+  "description": "Temporary content. Shows how an announced date will appear. Replace with confirmed event details and a ticket link.",
+  "placeholder": true
+}

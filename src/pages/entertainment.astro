@@ -1,40 +1,64 @@
 ---
+import { url } from '../lib/paths';
+import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/layout/PageHeader.astro';
+import Section from '../components/content/Section.astro';
 import EmptyState from '../components/layout/EmptyState.astro';
 import EventCard from '../components/cards/EventCard.astro';
-import { getEntry } from 'astro:content';
-import { getEvents } from '../lib/content';
+import MediaEmbed from '../components/media/MediaEmbed.astro';
+import Testimonials from '../components/content/Testimonials.astro';
+import { getEvents, getTestimonials } from '../lib/content';
+import { getMediaForPage } from '../lib/media';
 
 const division = await getEntry('divisions', 'entertainment');
+const name = division?.data.name ?? 'Entertainment';
 const { upcoming } = await getEvents();
+const media = await getMediaForPage('entertainment');
+const testimonials = await getTestimonials();
 ---
 
-<BaseLayout title={division?.data.name ?? 'Entertainment'} description={division?.data.description}>
-  <PageHeader title={division?.data.name ?? 'Entertainment'} intro={division?.data.tagline}>
+<BaseLayout title={name} description={division?.data.description}>
+  <PageHeader title={name} intro={division?.data.tagline}>
     <div class="actions">
-      <a class="button" href="/book/">Book a performance</a>
-      <a class="button button--ghost" href="/epk/">Press kit</a>
+      <a class="button" href={url('/book/')}>
+        Book a performance
+      </a>
+      <a class="button button--ghost" href={url('/epk/')}>
+        Press kit
+      </a>
     </div>
   </PageHeader>
 
-  <section class="section wrap" aria-labelledby="upcoming-heading">
-    <h2 id="upcoming-heading">Upcoming</h2>
-    {
-      upcoming.length ? (
-        <ul class="grid">
-          {upcoming.map((e) => (
-            <li>
-              <EventCard event={e} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState message="No upcoming dates announced." />
-      )
-    }
-    <p><a href="/events/">All events, including past shows</a></p>
-  </section>
+  {media.length > 0 && (
+    <Section id="live" title="Live">
+      <div class="media">
+        {media.map((m) => (
+          <MediaEmbed id={m.id} />
+        ))}
+      </div>
+    </Section>
+  )}
+
+  <Section id="upcoming" title="Upcoming" more={{ href: url('/events/'), label: 'All events, including past shows' }}>
+    {upcoming.length ? (
+      <ul class="grid">
+        {upcoming.map((e) => (
+          <li>
+            <EventCard event={e} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="No upcoming dates announced." />
+    )}
+  </Section>
+
+  {testimonials.length > 0 && (
+    <Section id="testimonials" title="What promoters say">
+      <Testimonials items={testimonials} />
+    </Section>
+  )}
 </BaseLayout>
 
 <style>
@@ -42,5 +66,9 @@ const { upcoming } = await getEvents();
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+  }
+  .media {
+    display: grid;
+    gap: var(--space-5);
   }
 </style>

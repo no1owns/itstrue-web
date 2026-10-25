@@ -14,7 +14,7 @@ import { site } from '../lib/site';
 
 <script>
   // Links like /book/?type=podcast preselect the inquiry type.
-  import { inquiryTypes } from '../lib/site';
+  import { inquiryTypes } from '../lib/inquiry';
   const type = new URLSearchParams(location.search).get('type');
   const select = document.querySelector<HTMLSelectElement>('#type');
   if (select && type && inquiryTypes.some((t) => t.value === type)) select.value = type;

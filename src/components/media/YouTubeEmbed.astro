@@ -16,7 +16,10 @@ const thumb = poster ?? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefa
 <youtube-embed class="video" data-id={id} data-title={title}>
   <a class="poster" href={watchUrl}>
     <img src={thumb} alt="" loading="lazy" decoding="async" width="480" height="360" />
-    <span class="play"><span class="visually-hidden">Play video: </span><span aria-hidden="true">▶</span></span>
+    <span class="play">
+      <span class="visually-hidden">Play video: </span>
+      <span aria-hidden="true">▶</span>
+    </span>
     <span class="visually-hidden">{title} (YouTube)</span>
   </a>
 </youtube-embed>
@@ -30,7 +33,8 @@ const thumb = poster ?? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefa
         const iframe = document.createElement('iframe');
         iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(this.dataset.id ?? '')}?autoplay=1&rel=0`;
         iframe.title = this.dataset.title ?? 'YouTube video';
-        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allow =
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         iframe.allowFullscreen = true;
         iframe.referrerPolicy = 'strict-origin-when-cross-origin';
         this.replaceChildren(iframe);

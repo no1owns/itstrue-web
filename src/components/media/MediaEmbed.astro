@@ -1,0 +1,60 @@
+---
+// Renders an entry from the media inventory with the right player for its
+// provider. Assets that aren't cleared for this build render nothing;
+// pending assets on previews carry a "Pending approval" label.
+import { asset as assetUrl } from '../../lib/paths';
+import { getMedia, isCleared } from '../../lib/media';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+import SpotifyEmbed from './SpotifyEmbed.astro';
+import TempLabel from '../content/TempLabel.astro';
+
+interface Props {
+  /** Media inventory id, e.g. "live-warehouse-live-houston" */
+  id: string;
+  /** Override the inventory caption. */
+  caption?: string;
+}
+const asset = await getMedia(Astro.props.id);
+const data = asset?.data;
+const caption = Astro.props.caption ?? data?.caption;
+const title = data?.name ?? '';
+---
+
+{asset && data && (
+  <figure class="media-embed">
+    {!isCleared(asset) && <TempLabel kind="pending" />}
+    {data.provider === 'youtube' && data.embedId ? (
+      <YouTubeEmbed id={data.embedId} title={title} />
+    ) : data.provider === 'spotify' && data.embedId ? (
+      <SpotifyEmbed type="track" id={data.embedId} title={title} />
+    ) : data.type === 'image' ? (
+      <img src={assetUrl(data.url)} alt={data.alt ?? ''} loading="lazy" decoding="async" />
+    ) : (
+      <a class="button button--ghost" href={assetUrl(data.url)} rel="noopener">
+        View {title}
+      </a>
+    )}
+    {(caption || data.rightsHolder) && (
+      <figcaption class="muted">
+        {caption}
+        {data.rightsHolder && <span class="credit"> © {data.rightsHolder}</span>}
+      </figcaption>
+    )}
+  </figure>
+)}
+
+<style>
+  .media-embed {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+    margin: 0;
+  }
+  .media-embed > :global(youtube-embed),
+  .media-embed > img {
+    width: 100%;
+  }
+  figcaption {
+    font-size: var(--step--1);
+  }
+</style>
