@@ -1,0 +1,26 @@
+---
+interface Props {
+  type: 'show' | 'episode' | 'track' | 'album' | 'playlist' | 'artist';
+  id: string;
+  title: string;
+}
+const { type, id, title } = Astro.props;
+const compact = type === 'track' || type === 'episode';
+---
+
+<iframe
+  class="spotify"
+  src={`https://open.spotify.com/embed/${type}/${encodeURIComponent(id)}`}
+  title={`${title} on Spotify`}
+  height={compact ? 152 : 352}
+  loading="lazy"
+  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+<style>
+  .spotify {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+  }
+</style>

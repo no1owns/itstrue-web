@@ -1,0 +1,93 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/layout/PageHeader.astro';
+import EmptyState from '../components/layout/EmptyState.astro';
+import { site } from '../lib/site';
+
+// Electronic press kit. Bios come from talent records, coverage from press
+// records. Downloadable assets (photos, stage plot, rider) are added once
+// supplied and cleared; see docs/asset-inventory.csv.
+const talent = await getCollection('talent', (t) => t.data.published);
+const press = (await getCollection('press', (p) => p.data.published)).sort(
+  (a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0),
+);
+const pressEmail = site.contact.press ?? site.contact.bookings;
+---
+
+<BaseLayout title="Press kit" description={`Electronic press kit for ${site.name}.`}>
+  <PageHeader title="Press kit">
+    <div class="actions">
+      <a class="button" href="/book/">Booking inquiry</a>
+      {pressEmail && <a class="button button--ghost" href={`mailto:${pressEmail}`}>Press contact</a>}
+    </div>
+  </PageHeader>
+
+  <section class="section wrap" aria-labelledby="bios-heading">
+    <h2 id="bios-heading">Bios</h2>
+    {
+      talent.length ? (
+        talent.map((t) => (
+          <article class="bio">
+            {t.data.photo && <img src={t.data.photo.src} alt={t.data.photo.alt} loading="lazy" width="320" height="400" />}
+            <div>
+              <h3>{t.data.name}</h3>
+              {t.data.role && <p class="muted">{t.data.role}</p>}
+              {t.data.bio && <p class="prewrap">{t.data.bio}</p>}
+              {t.data.photo?.credit && <p class="muted">Photo: {t.data.photo.credit}</p>}
+            </div>
+          </article>
+        ))
+      ) : (
+        <EmptyState message="Bios will be added once approved." />
+      )
+    }
+  </section>
+
+  {
+    press.length > 0 && (
+      <section class="section wrap" aria-labelledby="press-heading">
+        <h2 id="press-heading">Press</h2>
+        <ul class="press">
+          {press.map((p) => (
+            <li>
+              {p.data.quote && <blockquote>{p.data.quote}</blockquote>}
+              <p>
+                <strong>{p.data.outlet}</strong>:{' '}
+                {p.data.url ? <a href={p.data.url} rel="noopener">{p.data.headline}</a> : p.data.headline}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .bio {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+  @media (min-width: 48rem) {
+    .bio {
+      grid-template-columns: 16rem 1fr;
+    }
+  }
+  .press {
+    display: grid;
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+  blockquote {
+    margin: 0 0 var(--space-2);
+    font-size: var(--step-1);
+  }
+</style>

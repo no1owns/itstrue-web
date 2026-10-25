@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/layout/PageHeader.astro';
+import { site } from '../lib/site';
+
+const emails = [
+  { label: 'General', address: site.contact.general },
+  { label: 'Bookings', address: site.contact.bookings },
+  { label: 'Press', address: site.contact.press },
+].filter((e) => e.address);
+---
+
+<BaseLayout title="Contact">
+  <PageHeader title="Contact">
+    <p><a class="button" href="/book/">Send a booking or business inquiry</a></p>
+  </PageHeader>
+  <div class="wrap">
+    {
+      emails.length > 0 && (
+        <dl class="emails">
+          {emails.map((e) => (
+            <>
+              <dt>{e.label}</dt>
+              <dd>
+                <a href={`mailto:${e.address}`}>{e.address}</a>
+              </dd>
+            </>
+          ))}
+        </dl>
+      )
+    }
+    {
+      site.social.length > 0 && (
+        <ul class="social">
+          {site.social.map((s) => (
+            <li>
+              <a href={s.url} rel="me noopener">{s.platform}</a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .emails {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2) var(--space-4);
+  }
+  .emails dd {
+    margin: 0;
+  }
+  .social {
+    padding: 0;
+    list-style: none;
+  }
+  .social a {
+    display: inline-block;
+    padding-block: var(--space-2);
+  }
+</style>

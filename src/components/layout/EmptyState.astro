@@ -1,0 +1,17 @@
+---
+// Shown where a list has no published content yet. Says so plainly instead
+// of filling the space with placeholder content.
+interface Props {
+  message: string;
+}
+---
+
+<p class="empty muted">{Astro.props.message}</p>
+
+<style>
+  .empty {
+    padding: var(--space-4);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+  }
+</style>

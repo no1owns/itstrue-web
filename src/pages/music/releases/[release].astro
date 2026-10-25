@@ -1,0 +1,109 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/layout/PageHeader.astro';
+import SpotifyEmbed from '../../../components/media/SpotifyEmbed.astro';
+import YouTubeEmbed from '../../../components/media/YouTubeEmbed.astro';
+import ListenOn from '../../../components/media/ListenOn.astro';
+import JsonLd from '../../../components/seo/JsonLd.astro';
+import { getReleases, formatDate, formatDuration } from '../../../lib/content';
+
+export const getStaticPaths = (async () => {
+  return (await getReleases()).map((release) => ({ params: { release: release.id }, props: { release } }));
+}) satisfies GetStaticPaths;
+
+const { release } = Astro.props;
+const { data } = release;
+const isSingle = data.type === 'single';
+const links = [...(data.smartLink ? [{ platform: 'All platforms', url: data.smartLink }] : []), ...data.links];
+---
+
+<BaseLayout title={`${data.title} by ${data.artists.join(', ')}`} description={data.description} image={data.artwork?.src} type={isSingle ? 'music.song' : 'music.album'}>
+  <JsonLd
+    slot="head"
+    data={{
+      '@type': isSingle ? 'MusicRecording' : 'MusicAlbum',
+      name: data.title,
+      byArtist: data.artists.map((name) => ({ '@type': 'MusicGroup', name })),
+      datePublished: data.releaseDate?.toISOString().slice(0, 10),
+      image: data.artwork?.src,
+      ...(!isSingle && data.tracks.length && { numTracks: data.tracks.length }),
+    }}
+  />
+
+  <PageHeader title={data.title} eyebrow={data.artists.join(', ')}>
+    {data.releaseDate && <p class="muted">Released {formatDate(data.releaseDate)}</p>}
+  </PageHeader>
+
+  <div class="wrap release">
+    <div class="media">
+      {data.artwork && <img src={data.artwork.src} alt={data.artwork.alt} width="480" height="480" />}
+      {data.spotifyId && <SpotifyEmbed type={isSingle ? 'track' : 'album'} id={data.spotifyId} title={data.title} />}
+    </div>
+    <div>
+      {data.description && <p class="prewrap">{data.description}</p>}
+      <ListenOn links={links} label="Stream" />
+      {
+        data.tracks.length > 0 && (
+          <>
+            <h2>Tracklist</h2>
+            <ol class="tracks">
+              {data.tracks.map((t) => (
+                <li>
+                  {t.title} {t.durationSeconds && <span class="muted">{formatDuration(t.durationSeconds)}</span>}
+                </li>
+              ))}
+            </ol>
+          </>
+        )
+      }
+      {
+        data.credits.length > 0 && (
+          <>
+            <h2>Credits</h2>
+            <dl class="credits">
+              {data.credits.map((c) => (
+                <>
+                  <dt>{c.role}</dt>
+                  <dd>{c.name}</dd>
+                </>
+              ))}
+            </dl>
+          </>
+        )
+      }
+    </div>
+    {data.youtubeId && <div class="video"><YouTubeEmbed id={data.youtubeId} title={data.title} /></div>}
+  </div>
+</BaseLayout>
+
+<style>
+  .release {
+    display: grid;
+    gap: var(--space-5);
+  }
+  @media (min-width: 48rem) {
+    .release {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .video {
+      grid-column: 1 / -1;
+    }
+  }
+  .media {
+    display: grid;
+    gap: var(--space-3);
+  }
+  h2 {
+    font-size: var(--step-1);
+    margin-top: var(--space-5);
+  }
+  .credits {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-3);
+  }
+  .credits dd {
+    margin: 0;
+  }
+</style>

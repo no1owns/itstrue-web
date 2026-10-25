@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/layout/PageHeader.astro';
+import EmptyState from '../components/layout/EmptyState.astro';
+import EventCard from '../components/cards/EventCard.astro';
+import { getEntry } from 'astro:content';
+import { getEvents } from '../lib/content';
+
+const division = await getEntry('divisions', 'entertainment');
+const { upcoming } = await getEvents();
+---
+
+<BaseLayout title={division?.data.name ?? 'Entertainment'} description={division?.data.description}>
+  <PageHeader title={division?.data.name ?? 'Entertainment'} intro={division?.data.tagline}>
+    <div class="actions">
+      <a class="button" href="/book/">Book a performance</a>
+      <a class="button button--ghost" href="/epk/">Press kit</a>
+    </div>
+  </PageHeader>
+
+  <section class="section wrap" aria-labelledby="upcoming-heading">
+    <h2 id="upcoming-heading">Upcoming</h2>
+    {
+      upcoming.length ? (
+        <ul class="grid">
+          {upcoming.map((e) => (
+            <li>
+              <EventCard event={e} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState message="No upcoming dates announced." />
+      )
+    }
+    <p><a href="/events/">All events, including past shows</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

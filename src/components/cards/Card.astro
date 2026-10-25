@@ -1,0 +1,66 @@
+---
+// Shared card frame: optional image, a linked title, and a meta line.
+// The whole card is clickable via the title link's stretched hit area.
+interface Props {
+  href: string;
+  title: string;
+  image?: { src: string; alt: string };
+  meta?: string;
+  ratio?: '1/1' | '16/9' | '4/5';
+}
+const { href, title, image, meta, ratio = '1/1' } = Astro.props;
+---
+
+<article class="card">
+  {
+    image && (
+      <img src={image.src} alt={image.alt} loading="lazy" decoding="async" style={`aspect-ratio: ${ratio}`} />
+    )
+  }
+  <div class="body">
+    {meta && <p class="meta muted">{meta}</p>}
+    <h3><a href={href}>{title}</a></h3>
+    <slot />
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  img {
+    width: 100%;
+    object-fit: cover;
+  }
+  .body {
+    padding: var(--space-3);
+  }
+  .meta {
+    margin-bottom: var(--space-1);
+    font-size: var(--step--1);
+  }
+  h3 {
+    margin: 0;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .card:has(a:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  h3 a:focus-visible {
+    outline: none;
+  }
+</style>

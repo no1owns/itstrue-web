@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test fixture. Not MoneyTakers content. -->
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <yt:videoId>vid-second</yt:videoId>
+    <title>Second &amp; Last</title>
+    <published>2025-10-14T10:00:00+00:00</published>
+  </entry>
+  <entry>
+    <yt:videoId>vid-unrelated</yt:videoId>
+    <title>Behind the scenes</title>
+    <published>2025-10-10T10:00:00+00:00</published>
+  </entry>
+</feed>

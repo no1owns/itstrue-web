@@ -1,0 +1,43 @@
+name: Sync podcast feeds
+
+# Pulls new episodes from each show's RSS/YouTube feed and commits the
+# updated snapshots in src/data/feeds/. The host rebuilds on that commit.
+# Scheduled runs only happen on the default branch.
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-feeds
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run sync:feeds
+
+      - name: Commit changed snapshots
+        run: |
+          if [ -z "$(git status --porcelain -- src/data/feeds)" ]; then
+            echo "No feed changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/feeds
+          git commit -m "Sync podcast feeds"
+          git push

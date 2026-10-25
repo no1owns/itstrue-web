@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/layout/PageHeader.astro';
+import EmptyState from '../../components/layout/EmptyState.astro';
+import ReleaseCard from '../../components/cards/ReleaseCard.astro';
+import { getEntry } from 'astro:content';
+import { getReleases } from '../../lib/content';
+
+const division = await getEntry('divisions', 'music');
+const releases = await getReleases();
+---
+
+<BaseLayout title={division?.data.name ?? 'Music'} description={division?.data.description}>
+  <PageHeader title={division?.data.name ?? 'Music'} intro={division?.data.tagline} />
+
+  <section class="section wrap" aria-labelledby="releases-heading">
+    <h2 id="releases-heading">Releases</h2>
+    {
+      releases.length ? (
+        <ul class="grid">
+          {releases.map((r) => (
+            <li>
+              <ReleaseCard release={r} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState message="No releases published yet." />
+      )
+    }
+  </section>
+
+  <section class="section wrap">
+    <p><a class="button button--ghost" href="/book/?type=music-production">Music production inquiries</a></p>
+  </section>
+</BaseLayout>

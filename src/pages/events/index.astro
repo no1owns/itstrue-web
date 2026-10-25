@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/layout/PageHeader.astro';
+import EmptyState from '../../components/layout/EmptyState.astro';
+import EventCard from '../../components/cards/EventCard.astro';
+import { getEvents } from '../../lib/content';
+
+// Upcoming vs past is decided at build time. The scheduled rebuild (see
+// docs/content-guide.md) moves finished events into "Past" automatically.
+const { upcoming, past } = await getEvents();
+---
+
+<BaseLayout title="Events">
+  <PageHeader title="Events" />
+
+  <section class="section wrap" aria-labelledby="upcoming-heading">
+    <h2 id="upcoming-heading">Upcoming</h2>
+    {
+      upcoming.length ? (
+        <ul class="grid">
+          {upcoming.map((e) => (
+            <li>
+              <EventCard event={e} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState message="No upcoming dates announced." />
+      )
+    }
+  </section>
+
+  {
+    past.length > 0 && (
+      <section class="section wrap" aria-labelledby="past-heading">
+        <h2 id="past-heading">Past</h2>
+        <ul class="grid">
+          {past.map((e) => (
+            <li>
+              <EventCard event={e} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>

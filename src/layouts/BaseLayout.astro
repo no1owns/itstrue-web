@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+import SEOHead from '../components/seo/SEOHead.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import type { ComponentProps } from 'astro/types';
+
+type Props = ComponentProps<typeof SEOHead>;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SEOHead {...Astro.props} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: var(--space-2);
+    top: -10rem;
+    z-index: 100;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+  }
+  .skip-link:focus {
+    top: var(--space-2);
+  }
+  main:focus {
+    outline: none;
+  }
+</style>

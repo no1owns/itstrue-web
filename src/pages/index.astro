@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EpisodeCard from '../components/cards/EpisodeCard.astro';
+import EventCard from '../components/cards/EventCard.astro';
+import ReleaseCard from '../components/cards/ReleaseCard.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { site } from '../lib/site';
+import { getDivisions, divisionHref, getEpisodes, getEvents, getReleases, getShows } from '../lib/content';
+
+// The homepage is assembled from whatever is published. Sections with
+// nothing in them are left out rather than shown empty.
+const divisions = await getDivisions();
+const showTitles = new Map((await getShows()).map((s) => [s.id, s.data.title]));
+const latestEpisodes = (await getEpisodes()).slice(0, 3);
+const { upcoming } = await getEvents();
+const nextEvents = upcoming.slice(0, 3);
+const releases = await getReleases();
+const featuredReleases = (releases.some((r) => r.data.featured) ? releases.filter((r) => r.data.featured) : releases).slice(0, 3);
+const sameAs = site.social.map((s) => s.url);
+---
+
+<BaseLayout>
+  <JsonLd slot="head" data={{ '@type': 'Organization', name: site.name, url: Astro.site?.href, ...(sameAs.length && { sameAs }) }} />
+
+  <section class="hero wrap">
+    <h1>{site.name}</h1>
+    {site.description && <p class="lede">{site.description}</p>}
+    <div class="actions">
+      <a class="button" href="/book/">Book {site.name}</a>
+      <a class="button button--ghost" href="/podcasts/">Listen</a>
+    </div>
+  </section>
+
+  <section class="section wrap" aria-labelledby="divisions-heading">
+    <h2 id="divisions-heading" class="visually-hidden">What we do</h2>
+    <ul class="divisions">
+      {
+        divisions.map((d) => (
+          <li>
+            <a href={divisionHref(d)}>
+              <span class="name">{d.data.name}</span>
+              {d.data.tagline && <span class="tagline">{d.data.tagline}</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {
+    latestEpisodes.length > 0 && (
+      <section class="section wrap" aria-labelledby="latest-heading">
+        <h2 id="latest-heading">Latest episodes</h2>
+        <ul class="grid">
+          {latestEpisodes.map((e) => (
+            <li>
+              <EpisodeCard episode={e} showTitle={showTitles.get(e.data.show.id)} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    nextEvents.length > 0 && (
+      <section class="section wrap" aria-labelledby="events-heading">
+        <h2 id="events-heading">Upcoming</h2>
+        <ul class="grid">
+          {nextEvents.map((e) => (
+            <li>
+              <EventCard event={e} />
+            </li>
+          ))}
+        </ul>
+        <p><a href="/events/">All events</a></p>
+      </section>
+    )
+  }
+
+  {
+    featuredReleases.length > 0 && (
+      <section class="section wrap" aria-labelledby="music-heading">
+        <h2 id="music-heading">Music</h2>
+        <ul class="grid">
+          {featuredReleases.map((r) => (
+            <li>
+              <ReleaseCard release={r} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-6);
+  }
+  .lede {
+    font-size: var(--step-2);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .divisions {
+    display: grid;
+    gap: var(--space-2);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .divisions a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: 8rem;
+    justify-content: flex-end;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 800;
+  }
+  .tagline {
+    color: var(--color-muted);
+  }
+</style>

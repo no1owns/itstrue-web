@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/layout/PageHeader.astro';
+import InquiryForm from '../components/forms/InquiryForm.astro';
+import { site } from '../lib/site';
+---
+
+<BaseLayout title="Book" description={`Booking and business inquiries for ${site.name}.`}>
+  <PageHeader title="Book" intro="Bookings, appearances, partnerships and production. Tell us what you have in mind." />
+  <div class="wrap">
+    <InquiryForm />
+  </div>
+</BaseLayout>
+
+<script>
+  // Links like /book/?type=podcast preselect the inquiry type.
+  import { inquiryTypes } from '../lib/site';
+  const type = new URLSearchParams(location.search).get('type');
+  const select = document.querySelector<HTMLSelectElement>('#type');
+  if (select && type && inquiryTypes.some((t) => t.value === type)) select.value = type;
+</script>

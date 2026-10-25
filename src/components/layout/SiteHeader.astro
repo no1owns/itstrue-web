@@ -1,0 +1,136 @@
+---
+import { site } from '../../lib/site';
+import { getDivisions, divisionHref } from '../../lib/content';
+
+const divisions = (await getDivisions()).filter((d) => d.data.inNav);
+const links = [
+  ...divisions.map((d) => ({ href: divisionHref(d), label: d.data.name })),
+  { href: '/events/', label: 'Events' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => current === href || (href !== '/' && current.startsWith(href));
+---
+
+{site.announcement && <p class="announcement">{site.announcement}</p>}
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/">{site.name}</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
+      Menu
+    </button>
+    <nav id="site-nav" aria-label="Main">
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="button book" href="/book/">Book</a>
+  </div>
+</header>
+
+<script>
+  // Without JS the nav simply stays visible; with JS it collapses on small screens.
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.getElementById('site-nav');
+  if (toggle && nav) {
+    toggle.hidden = false;
+    document.documentElement.classList.add('has-menu-toggle');
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('is-open', open);
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.classList.contains('is-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .announcement {
+    margin: 0;
+    max-width: none;
+    padding: var(--space-2) var(--gutter);
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+    text-align: center;
+    font-size: var(--step--1);
+  }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--header-height);
+  }
+  .brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-1);
+    text-decoration: none;
+    margin-right: auto;
+  }
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  nav a {
+    display: inline-block;
+    padding-block: var(--space-2);
+    text-decoration: none;
+  }
+  nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .menu-toggle {
+    min-height: 44px;
+    padding-inline: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+  @media (max-width: 47.99rem) {
+    nav {
+      order: 3;
+      flex-basis: 100%;
+    }
+    :global(.has-menu-toggle) nav:not(.is-open) {
+      display: none;
+    }
+    nav ul {
+      flex-direction: column;
+      padding-bottom: var(--space-3);
+    }
+  }
+  @media (min-width: 48rem) {
+    .menu-toggle {
+      display: none;
+    }
+  }
+</style>

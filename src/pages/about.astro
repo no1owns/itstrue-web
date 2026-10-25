@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/layout/PageHeader.astro';
+import EmptyState from '../components/layout/EmptyState.astro';
+import { site } from '../lib/site';
+
+const talent = await getCollection('talent', (t) => t.data.published);
+---
+
+<BaseLayout title="About">
+  <PageHeader title={`About ${site.name}`} intro={site.description} />
+  <section class="section wrap" aria-labelledby="team-heading">
+    <h2 id="team-heading">The team</h2>
+    {
+      talent.length ? (
+        <ul class="grid">
+          {talent.map((t) => (
+            <li class="person">
+              {t.data.photo && <img src={t.data.photo.src} alt={t.data.photo.alt} loading="lazy" />}
+              <h3>{t.data.name}</h3>
+              {t.data.role && <p class="muted">{t.data.role}</p>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState message="Team profiles will be added once approved." />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .person img {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius);
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import { formatDate } from '../../lib/content';
+
+interface Props {
+  event: CollectionEntry<'events'>;
+}
+const { event } = Astro.props;
+const { data } = event;
+const status = { announced: '', 'on-sale': '', 'sold-out': 'Sold out', cancelled: 'Cancelled', postponed: 'Postponed' }[
+  data.status
+];
+const meta = [formatDate(data.start, data.timezone), [data.venue, data.city].filter(Boolean).join(', '), status]
+  .filter(Boolean)
+  .join(' · ');
+---
+
+<Card href={`/events/${event.id}/`} title={data.title} image={data.image} meta={meta} ratio="16/9" />

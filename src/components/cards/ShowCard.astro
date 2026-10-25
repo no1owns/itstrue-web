@@ -1,0 +1,12 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+
+interface Props {
+  show: CollectionEntry<'shows'>;
+}
+const { show } = Astro.props;
+const status = { active: '', hiatus: 'On hiatus', ended: 'Archive' }[show.data.status];
+---
+
+<Card href={`/podcasts/${show.id}/`} title={show.data.title} image={show.data.artwork} meta={status || undefined} />

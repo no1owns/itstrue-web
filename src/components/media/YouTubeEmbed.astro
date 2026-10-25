@@ -1,0 +1,78 @@
+---
+// Click-to-load YouTube player. Nothing loads from YouTube's player until
+// the visitor presses play, which keeps pages fast and avoids tracking
+// cookies on page load. Without JS it's a plain link to the video.
+interface Props {
+  id: string;
+  title: string;
+  /** Optional poster (e.g. episode artwork). Defaults to YouTube's thumbnail. */
+  poster?: string;
+}
+const { id, title, poster } = Astro.props;
+const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
+const thumb = poster ?? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
+---
+
+<youtube-embed class="video" data-id={id} data-title={title}>
+  <a class="poster" href={watchUrl}>
+    <img src={thumb} alt="" loading="lazy" decoding="async" width="480" height="360" />
+    <span class="play"><span class="visually-hidden">Play video: </span><span aria-hidden="true">▶</span></span>
+    <span class="visually-hidden">{title} (YouTube)</span>
+  </a>
+</youtube-embed>
+
+<script>
+  class YouTubeEmbed extends HTMLElement {
+    connectedCallback() {
+      const link = this.querySelector('a');
+      link?.addEventListener('click', (event) => {
+        event.preventDefault();
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(this.dataset.id ?? '')}?autoplay=1&rel=0`;
+        iframe.title = this.dataset.title ?? 'YouTube video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        this.replaceChildren(iframe);
+        iframe.focus();
+      });
+    }
+  }
+  customElements.define('youtube-embed', YouTubeEmbed);
+</script>
+
+<style>
+  .video {
+    display: block;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+  }
+  .video :global(iframe),
+  .poster,
+  .poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .poster img {
+    object-fit: cover;
+  }
+  .play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.75);
+    color: #fff;
+    font-size: 1.75rem;
+  }
+</style>
