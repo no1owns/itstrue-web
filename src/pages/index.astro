@@ -1,0 +1,179 @@
+---
+import { url } from '../lib/paths';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/content/Section.astro';
+import TempLabel from '../components/content/TempLabel.astro';
+import EpisodeCard from '../components/cards/EpisodeCard.astro';
+import EventCard from '../components/cards/EventCard.astro';
+import ReleaseCard from '../components/cards/ReleaseCard.astro';
+import MediaEmbed from '../components/media/MediaEmbed.astro';
+import Testimonials from '../components/content/Testimonials.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { site } from '../lib/site';
+import { getMediaForPage } from '../lib/media';
+import {
+  isPreview,
+  getDivisions,
+  divisionHref,
+  getEpisodes,
+  getEvents,
+  getReleases,
+  getShows,
+  getTestimonials,
+} from '../lib/content';
+
+// The homepage is assembled from whatever is published. Sections with
+// nothing in them are left out rather than shown empty.
+const divisions = await getDivisions();
+const showTitles = new Map((await getShows()).map((s) => [s.id, s.data.title]));
+const latestEpisodes = (await getEpisodes()).slice(0, 3);
+const nextEvents = (await getEvents()).upcoming.slice(0, 3);
+const releases = await getReleases();
+const featuredReleases = (
+  releases.some((r) => r.data.featured) ? releases.filter((r) => r.data.featured) : releases
+).slice(0, 3);
+const featuredMedia = (await getMediaForPage('home'))[0];
+const testimonials = await getTestimonials();
+const showHeroStatement = site.hero.statement && (isPreview || !site.hero.placeholder);
+const sameAs = site.social.map((s) => s.url);
+---
+
+<BaseLayout>
+  <JsonLd
+    slot="head"
+    data={{ '@type': 'Organization', name: site.name, url: Astro.site?.href, ...(sameAs.length && { sameAs }) }}
+  />
+
+  <section class="hero wrap">
+    <h1>{site.name}</h1>
+    {showHeroStatement && (
+      <div class="lede">
+        {site.hero.placeholder && <TempLabel />}
+        <p>{site.hero.statement}</p>
+      </div>
+    )}
+    <div class="actions">
+      <a class="button" href={url('/book/')}>
+        Book {site.name}
+      </a>
+      <a class="button button--ghost" href={url('/entertainment/')}>
+        Watch live
+      </a>
+    </div>
+  </section>
+
+  <Section id="divisions" title="What we do" hideTitle>
+    <ul class="divisions">
+      {divisions.map((d) => (
+        <li>
+          <a href={divisionHref(d)}>
+            <span class="name">{d.data.name}</span>
+            {d.data.tagline && <span class="tagline">{d.data.tagline}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  {featuredMedia && (
+    <Section id="featured" title="Live">
+      <MediaEmbed id={featuredMedia.id} />
+    </Section>
+  )}
+
+  {latestEpisodes.length > 0 && (
+    <Section id="latest" title="Latest episodes" more={{ href: url('/podcasts/'), label: 'All podcasts' }}>
+      <ul class="grid">
+        {latestEpisodes.map((e) => (
+          <li>
+            <EpisodeCard episode={e} showTitle={showTitles.get(e.data.show.id)} />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  {nextEvents.length > 0 && (
+    <Section id="events" title="Upcoming" more={{ href: url('/events/'), label: 'All events' }}>
+      <ul class="grid">
+        {nextEvents.map((e) => (
+          <li>
+            <EventCard event={e} />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  {featuredReleases.length > 0 && (
+    <Section id="music" title="Music" more={{ href: url('/music/'), label: 'All music' }}>
+      <ul class="grid">
+        {featuredReleases.map((r) => (
+          <li>
+            <ReleaseCard release={r} />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  {testimonials.length > 0 && (
+    <Section id="testimonials" title="What people say">
+      <Testimonials items={testimonials} />
+    </Section>
+  )}
+
+  <Section id="cta" title={`Bring ${site.name} to your event`}>
+    <a class="button" href={url('/book/')}>
+      Start a booking inquiry
+    </a>
+  </Section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-6) var(--space-4);
+  }
+  .lede {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .lede p {
+    font-size: var(--step-2);
+    margin: 0;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .divisions {
+    display: grid;
+    gap: var(--space-2);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .divisions a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: 8rem;
+    justify-content: flex-end;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 800;
+  }
+  .tagline {
+    color: var(--color-muted);
+  }
+</style>

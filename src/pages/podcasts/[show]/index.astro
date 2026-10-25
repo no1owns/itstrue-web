@@ -1,0 +1,95 @@
+---
+import { asset } from '../../../lib/paths';
+import type { GetStaticPaths } from 'astro';
+import { getEntries } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/layout/PageHeader.astro';
+import Section from '../../../components/content/Section.astro';
+import TempLabel from '../../../components/content/TempLabel.astro';
+import EmptyState from '../../../components/layout/EmptyState.astro';
+import EpisodeCard from '../../../components/cards/EpisodeCard.astro';
+import ListenOn from '../../../components/media/ListenOn.astro';
+import SpotifyEmbed from '../../../components/media/SpotifyEmbed.astro';
+import JsonLd from '../../../components/seo/JsonLd.astro';
+import { getShows, getEpisodes, isVisible } from '../../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const shows = await getShows();
+  return shows.map((show) => ({ params: { show: show.id }, props: { show } }));
+}) satisfies GetStaticPaths;
+
+const { show } = Astro.props;
+const { data } = show;
+const episodes = await getEpisodes(show.id);
+const hosts = (await getEntries(data.hosts)).filter((h) => h && isVisible(h));
+const links = [...data.links, ...(data.rssUrl ? [{ platform: 'RSS', url: data.rssUrl }] : [])];
+---
+
+<BaseLayout title={data.title} description={data.description} image={data.artwork?.src}>
+  {data.rssUrl && <link slot="head" rel="alternate" type="application/rss+xml" title={data.title} href={data.rssUrl} />}
+  <JsonLd
+    slot="head"
+    data={{
+      '@type': 'PodcastSeries',
+      name: data.title,
+      description: data.description,
+      image: data.artwork?.src,
+      webFeed: data.rssUrl,
+    }}
+  />
+
+  <PageHeader title={data.title} eyebrow="Podcast">
+    <div class="show-intro">
+      {data.artwork && (
+        <img class="artwork" src={asset(data.artwork.src)} alt={data.artwork.alt} width="240" height="240" />
+      )}
+      <div class="details">
+        {data.placeholder && <TempLabel />}
+        {data.description && <p class="prewrap">{data.description}</p>}
+        {hosts.length > 0 && <p class="muted">Hosted by {hosts.map((h) => h.data.name).join(', ')}</p>}
+        <ListenOn links={links} />
+      </div>
+    </div>
+  </PageHeader>
+
+  {data.spotifyShowId && (
+    <Section id="listen" title="Listen" hideTitle>
+      <SpotifyEmbed type="show" id={data.spotifyShowId} title={data.title} />
+    </Section>
+  )}
+
+  <Section id="episodes" title="Episodes">
+    {episodes.length ? (
+      <ul class="grid">
+        {episodes.map((e) => (
+          <li>
+            <EpisodeCard episode={e} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState message="No episodes published yet." />
+    )}
+  </Section>
+</BaseLayout>
+
+<style>
+  .show-intro {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (min-width: 48rem) {
+    .show-intro:has(.artwork) {
+      grid-template-columns: 15rem 1fr;
+    }
+  }
+  .details {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .artwork {
+    border-radius: var(--radius);
+  }
+</style>

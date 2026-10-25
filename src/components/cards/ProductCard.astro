@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+const { product } = Astro.props;
+const { data } = product;
+const meta = [data.category, data.soldOut ? 'Sold out' : data.priceLabel].filter(Boolean).join(' · ');
+---
+
+<Card
+  href={data.url}
+  external
+  title={data.title}
+  image={data.image}
+  meta={meta || undefined}
+  ratio="4/5"
+  placeholder={data.placeholder}
+/>

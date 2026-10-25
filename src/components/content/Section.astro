@@ -1,0 +1,45 @@
+---
+// Standard page section: heading, optional intro and "see all" link, then
+// content. Pages compose these so sections can be reordered or restyled in
+// one place.
+interface Props {
+  id: string;
+  title: string;
+  intro?: string;
+  more?: { href: string; label: string };
+  /** Visually hide the heading but keep it for screen readers. */
+  hideTitle?: boolean;
+}
+const { id, title, intro, more, hideTitle = false } = Astro.props;
+---
+
+<section class="section wrap" aria-labelledby={`${id}-heading`}>
+  <div class="section-head">
+    <h2 id={`${id}-heading`} class:list={{ 'visually-hidden': hideTitle }}>
+      {title}
+    </h2>
+    {more && (
+      <a class="more" href={more.href}>
+        {more.label}
+      </a>
+    )}
+  </div>
+  {intro && <p class="intro">{intro}</p>}
+  <slot />
+</section>
+
+<style>
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+  }
+  .more {
+    padding-block: var(--space-2);
+  }
+  .intro {
+    margin-bottom: var(--space-4);
+  }
+</style>

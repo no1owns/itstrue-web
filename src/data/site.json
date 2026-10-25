@@ -1,0 +1,17 @@
+{
+  "name": "MoneyTakers",
+  "description": "",
+  "hero": {
+    "statement": "Temporary headline. The positioning statement is pending brand review.",
+    "placeholder": true
+  },
+  "contact": {
+    "general": "",
+    "bookings": "",
+    "press": ""
+  },
+  "bookingResponseTime": "",
+  "social": [],
+  "shopUrl": "",
+  "announcement": ""
+}

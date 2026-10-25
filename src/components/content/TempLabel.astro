@@ -1,0 +1,28 @@
+---
+// Visible label for content that isn't final. Only previews show
+// placeholder or pending items, so this never reaches production.
+interface Props {
+  kind?: 'placeholder' | 'pending';
+}
+const { kind = 'placeholder' } = Astro.props;
+const text = kind === 'pending' ? 'Pending approval' : 'Temporary content';
+---
+
+<span class="temp-label" data-kind={kind}>
+  {text}
+</span>
+
+<style>
+  .temp-label {
+    display: inline-block;
+    padding: 0.1em 0.5em;
+    border: 2px dashed currentColor;
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>

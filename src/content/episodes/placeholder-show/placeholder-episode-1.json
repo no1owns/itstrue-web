@@ -1,0 +1,8 @@
+{
+  "show": "placeholder-show",
+  "title": "Placeholder Episode 1",
+  "episode": 1,
+  "date": "2026-09-01",
+  "description": "Temporary content. Episode title, date, description and listening links will come from the podcast host's metadata.",
+  "placeholder": true
+}

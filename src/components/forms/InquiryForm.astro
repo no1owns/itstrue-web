@@ -1,0 +1,142 @@
+---
+// Booking and business inquiry form. GitHub Pages serves static files
+// only, so submissions go to an external form service (e.g. Formspree) set
+// in PUBLIC_FORM_ENDPOINT. Until that's set, the form renders but can't be
+// submitted.
+import { PUBLIC_FORM_ENDPOINT } from 'astro:env/client';
+import { site } from '../../lib/site';
+import { inquiryTypes } from '../../lib/inquiry';
+
+interface Props {
+  /** Preselect an inquiry type, e.g. from /book/?type=podcast */
+  defaultType?: string;
+}
+const endpoint = PUBLIC_FORM_ENDPOINT?.trim();
+const { defaultType = 'live-booking' } = Astro.props;
+const fallbackEmail = site.contact.bookings ?? site.contact.general;
+---
+
+<form class="inquiry" method="post" action={endpoint || undefined} aria-describedby="form-note">
+  <p id="form-note" class="note muted">
+    {endpoint ? 'Fields marked * are required.' : 'Online inquiries are not switched on yet.'}
+    {!endpoint && fallbackEmail && (
+      <>
+        {' '}
+        Email <a href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a> instead.
+      </>
+    )}
+    {site.bookingResponseTime && <> We reply {site.bookingResponseTime}.</>}
+  </p>
+
+  <fieldset>
+    <legend>About you</legend>
+    <div class="field">
+      <label for="name">Name *</label>
+      <input id="name" name="name" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="organization">Organization or company</label>
+      <input id="organization" name="organization" autocomplete="organization" />
+    </div>
+    <div class="field">
+      <label for="email">Email *</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+    </div>
+    <div class="field">
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" />
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Your inquiry</legend>
+    <div class="field">
+      <label for="type">What is this about? *</label>
+      <select id="type" name="type" required>
+        {inquiryTypes.map((t) => (
+          <option value={t.value} selected={t.value === defaultType}>
+            {t.label}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div class="field">
+      <label for="event-type">Event type</label>
+      <input id="event-type" name="eventType" placeholder="e.g. festival, private event, corporate" />
+    </div>
+    <div class="field">
+      <label for="date">Event date(s)</label>
+      <input id="date" name="date" placeholder="e.g. 14 March, or flexible" />
+    </div>
+    <div class="field">
+      <label for="location">City or venue</label>
+      <input id="location" name="location" />
+    </div>
+    <div class="field">
+      <label for="audience">Expected audience size</label>
+      <input id="audience" name="audience" inputmode="numeric" />
+    </div>
+    <div class="field">
+      <label for="budget">Budget range</label>
+      <input id="budget" name="budget" />
+    </div>
+    <div class="field field--full">
+      <label for="details">Details *</label>
+      <textarea id="details" name="details" rows="6" required></textarea>
+    </div>
+  </fieldset>
+
+  <!-- Spam trap: hidden from people and assistive tech, filled in by bots. -->
+  <div class="trap" aria-hidden="true">
+    <label for="website">Leave this empty</label>
+    <input id="website" name="_gotcha" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button class="button" type="submit" disabled={!endpoint}>
+    Send inquiry
+  </button>
+</form>
+
+<style>
+  .inquiry {
+    max-width: 48rem;
+  }
+  fieldset {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    border: 0;
+  }
+  legend {
+    margin-bottom: var(--space-3);
+    font-weight: 700;
+    font-size: var(--step-1);
+  }
+  .field {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .field--full {
+    grid-column: 1 / -1;
+  }
+  label {
+    font-weight: 600;
+  }
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    padding: var(--space-2);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: inherit;
+    font: inherit;
+  }
+  .trap {
+    position: absolute;
+    left: -9999px;
+  }
+</style>

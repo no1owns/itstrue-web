@@ -1,0 +1,9 @@
+---
+interface Props {
+  data: Record<string, unknown>;
+}
+// Escape "<" so feed-sourced text can't close the script element.
+const json = JSON.stringify({ '@context': 'https://schema.org', ...Astro.props.data }).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

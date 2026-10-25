@@ -1,0 +1,55 @@
+---
+import { url } from '../../lib/paths';
+import { site } from '../../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    {site.social.length > 0 && (
+      <ul class="social" aria-label="Social media">
+        {site.social.map((s) => (
+          <li>
+            <a href={s.url} rel="me noopener">
+              {s.platform}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <ul class="links">
+      <li>
+        <a href={url('/book/')}>Bookings</a>
+      </li>
+      <li>
+        <a href={url('/epk/')}>Press kit</a>
+      </li>
+      <li>
+        <a href={url('/contact/')}>Contact</a>
+      </li>
+    </ul>
+    <p class="muted">
+      &copy; {year} {site.name}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-6);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+  a {
+    display: inline-block;
+    padding-block: var(--space-2);
+  }
+</style>

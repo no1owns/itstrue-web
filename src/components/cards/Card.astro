@@ -1,0 +1,94 @@
+---
+// Shared card frame: optional image, a linked title, and a meta line.
+// The whole card is clickable via the title link's stretched hit area.
+// Without an href, the card is static (e.g. a product with no store link yet).
+import { asset } from '../../lib/paths';
+import TempLabel from '../content/TempLabel.astro';
+
+interface Props {
+  href?: string;
+  title: string;
+  image?: { src: string; alt: string };
+  meta?: string;
+  ratio?: '1/1' | '16/9' | '4/5';
+  placeholder?: boolean;
+  external?: boolean;
+}
+const { href, title, image, meta, ratio = '1/1', placeholder = false, external = false } = Astro.props;
+---
+
+<article class="card">
+  {image ? (
+    <img src={asset(image.src)} alt={image.alt} loading="lazy" decoding="async" style={`aspect-ratio: ${ratio}`} />
+  ) : (
+    <div class="no-image" style={`aspect-ratio: ${ratio}`} aria-hidden="true" />
+  )}
+  <div class="body">
+    {placeholder && <TempLabel />}
+    {meta && <p class="meta muted">{meta}</p>}
+    <h3>
+      {href ? (
+        <a href={href} rel={external ? 'noopener' : undefined}>
+          {title}
+        </a>
+      ) : (
+        title
+      )}
+    </h3>
+    <slot />
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  img,
+  .no-image {
+    width: 100%;
+    object-fit: cover;
+  }
+  .no-image {
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--color-surface),
+      var(--color-surface) 10px,
+      var(--color-border) 10px,
+      var(--color-border) 11px
+    );
+  }
+  .body {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    padding: var(--space-3);
+  }
+  .meta {
+    margin: 0;
+    font-size: var(--step--1);
+  }
+  h3 {
+    margin: 0;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .card:has(a:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  h3 a:focus-visible {
+    outline: none;
+  }
+</style>
