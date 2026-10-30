@@ -1,6 +1,6 @@
-# moneytakers-web
+# itstrue-web
 
-Website for MoneyTakers, a multifaceted entertainment business: podcasts and original shows, music and production, live entertainment and bookings, and clothing and merchandise.
+Website for Its True Entertainments, a multifaceted entertainment business: podcasts and original shows, music and production, live entertainment and bookings, and clothing and merchandise.
 
 **Status:** foundation built. The site has its page structure, content models, media embeds and booking form, plus automated checks and GitHub Pages deployment. Content is clearly labelled placeholder material, and the visual design is a neutral stand-in until the creative direction is reviewed.
 
