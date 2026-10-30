@@ -4,7 +4,7 @@ Website for Its True Entertainments, a multifaceted entertainment business: podc
 
 **Status:** foundation built. The site has its page structure, content models, media embeds and booking form, plus automated checks and GitHub Pages deployment. Content is clearly labelled placeholder material, and the visual design is a neutral stand-in until the creative direction is reviewed.
 
-- Development URL: https://no1owns.github.io/moneytakers-web/ (`noindex`; published from `main`)
+- Development URL: https://no1owns.github.io/itstrue-web/ (`noindex`; published from `main`)
 
 ## Docs
 
