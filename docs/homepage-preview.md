@@ -33,6 +33,14 @@ Interior pages (`/podcasts/`, `/music/` and the rest) still use the earlier neut
 
 The parent mark is the design lead's **provisional** trace. The owner raster that spells "Entertainment" (singular) is not used.
 
+## Raw photos and videos are not published
+
+`public/photos/` and `public/videos/` hold the owner's working media (about 115 MB). Everything in `public/` is normally published, so `scripts/prune-unused-media.mjs` (an Astro integration registered in `astro.config.mjs`) removes from the build any file in those two folders that no built page, stylesheet or script refers to. A file a published page does use is kept. Nothing is deleted from the repository.
+
+Currently nothing uses them, so the published site is about 1.2 MB. The homepage's own images live in `public/images/home/`.
+
+**The repository is public.** Everything in those folders, including the photo marked withdrawn in the handoff (`113567A6-…jpeg`), can still be viewed and downloaded from GitHub, and stays in the git history. Excluding it from the website doesn't change that. To take material off GitHub it has to be removed from the repository and its history, or the repository made private.
+
 ## Navigation map as applied (proposal; needs design-lead confirmation)
 
 Interior pages don't exist, so every link goes to a section on this page:
