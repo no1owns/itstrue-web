@@ -1,0 +1,37 @@
+/* Self-hosted web fonts (SIL Open Font License, Latin subsets) from the design handoff. */
+@font-face {
+  font-family: 'Abril Fatface';
+  src: url('../../assets/fonts/abril-fatface-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Mono';
+  src: url('../../assets/fonts/space-mono-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Mono';
+  src: url('../../assets/fonts/space-mono-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../../assets/fonts/space-grotesk-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../../assets/fonts/space-grotesk-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../../assets/fonts/space-grotesk-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}

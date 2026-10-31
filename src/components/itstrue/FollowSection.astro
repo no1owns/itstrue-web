@@ -1,0 +1,73 @@
+---
+// Follow the Twins: the twins' own channels as large tiles, then the
+// Moneytakers and TwinWay channels. All handles are owner-supplied.
+import SocialIcon from './SocialIcon.astro';
+import { channels } from '../../data/home';
+
+const tiles = [
+  { icon: 'instagram', label: 'Instagram', ...channels.twins.instagram, sr: 'The Twins on Instagram' },
+  { icon: 'tiktok', label: 'TikTok', ...channels.twins.tiktok, sr: 'The Twins on TikTok' },
+] as const;
+const groups = [
+  {
+    title: 'Moneytakers',
+    links: [
+      { icon: 'instagram', label: 'Instagram', url: channels.moneytakers.instagram },
+      { icon: 'tiktok', label: 'TikTok', url: channels.moneytakers.tiktok },
+      { icon: 'youtube', label: 'YouTube', url: channels.moneytakers.youtube },
+    ],
+  },
+  {
+    title: 'TwinWay Podcast',
+    links: [
+      { icon: 'instagram', label: 'Instagram', url: channels.twinway.instagram },
+      { icon: 'youtube', label: 'YouTube', url: channels.twinway.youtube },
+    ],
+  },
+] as const;
+---
+
+<section class="sec followsec" id="follow" aria-labelledby="fl-h">
+  <div class="wrap">
+    <div class="fl__head">
+      <div>
+        <p class="k">Stay close</p>
+        <h2 class="st" id="fl-h">
+          Follow the Twins
+        </h2>
+      </div>
+      <p class="lede">New work, appearances and conversations first appear on the twins’ own channels.</p>
+    </div>
+    <div class="follow">
+      <div class="follow__twins">
+        {tiles.map((t) => (
+          <a class="follow__tile" href={t.url} target="_blank" rel="noopener noreferrer">
+            <SocialIcon name={t.icon} />
+            <span>
+              <b>{t.label}</b>
+              <small>{t.handle}</small>
+            </span>
+            <i class="ext" aria-hidden="true">
+              ↗
+            </i>
+            <span class="vh">{t.sr} (opens in a new tab)</span>
+          </a>
+        ))}
+      </div>
+      <div class="follow__groups">
+        {groups.map((g) => (
+          <div class="follow__g">
+            <h3>{g.title}</h3>
+            {g.links.map((l) => (
+              <a href={l.url} target="_blank" rel="noopener noreferrer">
+                <SocialIcon name={l.icon} />
+                {l.label}
+                <span class="vh"> ({g.title}, opens in a new tab)</span>
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

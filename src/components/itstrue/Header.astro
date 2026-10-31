@@ -1,0 +1,71 @@
+---
+// Sticky brand bar with the provisional parent mark, six section links and the
+// "Book the Twins" button, plus the drawer menu used at 1199px and below.
+// Behaviour follows the handoff's interactions.md and reference/js/nav.js.
+import ParentMark from './ParentMark.astro';
+import { brand, primaryNav } from '../../data/home';
+---
+
+<header class="nav">
+  <a class="brand brand--mark" href="#top" aria-label={`${brand.name}, home`}>
+    <ParentMark variant="row" width="260px" />
+  </a>
+  <nav class="nav__links" aria-label="Primary">
+    <ul>
+      {primaryNav.map((link) => (
+        <li>
+          <a href={link.href}>{link.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <a class="btn btn--primary nav__cta" href="#book" aria-label="Book the Twins">
+    <span class="long">Book the Twins</span>
+    <span class="short" aria-hidden="true">
+      Book
+    </span>
+  </a>
+  <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="drawer">
+    <span>Menu</span>
+    <i aria-hidden="true"></i>
+  </button>
+</header>
+<div id="drawer" class="drawer">
+  <ul>
+    {primaryNav.map((link) => (
+      <li>
+        <a href={link.href}>{link.label}</a>
+      </li>
+    ))}
+    <li>
+      <a href="#book" class="drawer__book">
+        Book the Twins
+      </a>
+    </li>
+  </ul>
+</div>
+
+<script>
+  // Menu button toggles body.menu-open and the drawer. Escape closes it and
+  // returns focus to the button; choosing a drawer link closes it.
+  const toggle = document.querySelector<HTMLButtonElement>('.nav__toggle');
+  const drawer = document.getElementById('drawer');
+  if (toggle && drawer) {
+    const label = toggle.querySelector('span');
+    const setOpen = (open: boolean) => {
+      document.body.classList.toggle('menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      if (label) label.textContent = open ? 'Close' : 'Menu';
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    drawer.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+  }
+</script>

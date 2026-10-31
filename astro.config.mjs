@@ -18,8 +18,8 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
-  // Writes sitemap-index.xml when `site` is set.
-  integrations: [sitemap()],
+  // Sitemap only at launch (SITE_LIVE=true): pre-launch builds publish none.
+  integrations: process.env.SITE_LIVE === 'true' ? [sitemap()] : [],
   env: {
     schema: {
       // The launch switch. While false (the default), every page is

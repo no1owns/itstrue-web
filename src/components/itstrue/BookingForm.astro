@@ -1,0 +1,68 @@
+---
+// NOT RENDERED. The booking form design from the handoff reference, kept for
+// later. It is not connected to anything: before using it, choose and
+// authorize a form service, give the form an action, and port its styles
+// (.mt-form, .mt-field, .mt-input in the handoff's
+// reference/css/home_reference_full.css; they were not shipped with the
+// preview). Never simulate a submission.
+---
+
+<form class="mt-form" aria-label="Booking inquiry">
+  <div class="mt-field">
+    <label for="f-name">Name</label>
+    <input class="mt-input" id="f-name" name="name" type="text" autocomplete="name" />
+  </div>
+  <div class="mt-field">
+    <label for="f-org">
+      Organization <small>(optional)</small>
+    </label>
+    <input class="mt-input" id="f-org" name="organization" type="text" autocomplete="organization" />
+  </div>
+  <div class="mt-field">
+    <label for="f-email">Email</label>
+    <input class="mt-input" id="f-email" name="email" type="email" autocomplete="email" />
+  </div>
+  <div class="mt-field">
+    <label for="f-phone">
+      Phone <small>(optional)</small>
+    </label>
+    <input class="mt-input" id="f-phone" name="phone" type="tel" autocomplete="tel" />
+  </div>
+  <div class="mt-field">
+    <label for="f-service">Service type</label>
+    <select class="mt-input" id="f-service" name="service">
+      <option>Performance</option>
+      <option>Acting</option>
+      <option>Modeling</option>
+      <option>Hosting</option>
+      <option>Production and engineering</option>
+      <option>Artist development and management</option>
+      <option>Media interview</option>
+      <option>Brand partnership</option>
+      <option>Podcast guest</option>
+    </select>
+  </div>
+  <div class="mt-field">
+    <label for="f-date">Date</label>
+    <input class="mt-input" id="f-date" name="date" type="date" />
+  </div>
+  <div class="mt-field">
+    <label for="f-city">City or venue</label>
+    <input class="mt-input" id="f-city" name="location" type="text" />
+  </div>
+  <div class="mt-field">
+    <label for="f-budget">
+      Budget <small>(optional)</small>
+    </label>
+    <input class="mt-input" id="f-budget" name="budget" type="text" />
+  </div>
+  <div class="mt-field mt-field--wide">
+    <label for="f-details">Details</label>
+    <textarea class="mt-input" id="f-details" name="details"></textarea>
+  </div>
+  <div class="mt-form__foot">
+    <button class="mt-btn mt-btn--primary" type="submit" disabled>
+      Send inquiry
+    </button>
+  </div>
+</form>
