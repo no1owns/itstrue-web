@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { pruneUnusedMedia } from './scripts/prune-unused-media.mjs';
 
 // Deployment settings come from the environment, so nothing here names the
 // repository or the domain. On GitHub Pages the deploy workflow sets
@@ -18,8 +19,13 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
-  // Writes sitemap-index.xml when `site` is set.
-  integrations: [sitemap()],
+  integrations: [
+    // Owner photos and videos in public/ are working material: leave out of the
+    // published site any that no page uses.
+    pruneUnusedMedia(),
+    // Sitemap only at launch (SITE_LIVE=true): pre-launch builds publish none.
+    ...(process.env.SITE_LIVE === 'true' ? [sitemap()] : []),
+  ],
   env: {
     schema: {
       // The launch switch. While false (the default), every page is

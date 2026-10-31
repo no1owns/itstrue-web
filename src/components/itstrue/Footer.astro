@@ -1,0 +1,97 @@
+---
+// Footer with the provisional stacked parent mark, section links, contact
+// details and the pre-launch preview notice.
+import ParentMark from './ParentMark.astro';
+import SocialIcon from './SocialIcon.astro';
+import { brand, channels, footerBrands, footerExplore, mailto } from '../../data/home';
+---
+
+<footer class="mt-footer">
+  <div class="mt-footer__grid">
+    <div class="mt-footer__brand">
+      <ParentMark variant="stack" width="250px" class="foot-mark" />
+      <p>The creative home of Twin Chino and TwinCasso. Music, acting, fashion modeling, tap, dance and media.</p>
+      <div class="follow follow--compact" role="group" aria-label="Follow the Twins">
+        <span class="follow__lab">Follow</span>
+        <a
+          class="follow__ic"
+          href={channels.twins.instagram.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="The Twins on Instagram (opens in a new tab)"
+        >
+          <SocialIcon name="instagram" />
+        </a>
+        <a
+          class="follow__ic"
+          href={channels.twins.tiktok.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="The Twins on TikTok (opens in a new tab)"
+        >
+          <SocialIcon name="tiktok" />
+        </a>
+        <a class="follow__all" href="#follow">
+          All channels
+        </a>
+      </div>
+    </div>
+    <div>
+      <h3>Explore</h3>
+      <ul>
+        {footerExplore.map((l) => (
+          <li>
+            <a href={l.href}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h3>Brands</h3>
+      <ul>
+        {footerBrands.map((l) => (
+          <li>
+            <a href={l.href}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h3>Book</h3>
+      <ul>
+        {brand.phones.map((p) => (
+          <li>
+            <a href={p.href}>{p.label}</a>
+          </li>
+        ))}
+        <li>
+          <a href={mailto}>{brand.email}</a>
+        </li>
+        <li>
+          <span>{brand.address}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <p class="mt-footer__preview">{brand.previewNotice}</p>
+  <div class="mt-footer__legal">
+    <span>© {brand.name}</span>
+    <span>Twin way, no other way.</span>
+  </div>
+</footer>
+
+<style>
+  .mt-footer__preview {
+    margin: 0;
+    padding: 12px 32px 16px;
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+  @media (max-width: 600px) {
+    .mt-footer__preview {
+      padding-inline: 16px;
+    }
+  }
+</style>

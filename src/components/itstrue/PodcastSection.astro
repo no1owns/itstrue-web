@@ -1,0 +1,54 @@
+---
+// TwinWay Podcast. No episodes are listed: none are confirmed yet.
+import ExternalLink from './ExternalLink.astro';
+import { url } from '../../lib/paths';
+import { channels } from '../../data/home';
+
+const links = [
+  { label: 'YouTube', href: channels.twinway.youtube },
+  { label: 'Instagram', href: channels.twinway.instagram },
+];
+---
+
+<section class="sec twinway" id="twinway" aria-labelledby="tw-h">
+  <div class="wrap tw__grid">
+    <figure class="ph tw__ph">
+      <img
+        class="bw"
+        src={url('/images/home/podcast-duo-conversational-ALP05153.jpg')}
+        width="420"
+        height="281"
+        alt="Twin Chino and TwinCasso, the TwinWay Podcast hosts, in a black and white studio portrait"
+        style="object-position:50% 0"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>
+        <span>Twin Chino</span>
+        <span>TwinCasso</span>
+      </figcaption>
+    </figure>
+    <div class="tw__copy">
+      <p class="k">TwinWay Podcast</p>
+      <h2 class="st" id="tw-h">
+        Two brothers. Two perspectives. One truth.
+      </h2>
+      <p class="lede">
+        TwinWay Podcast brings Twin Chino and TwinCasso together for candid conversations with artists, entrepreneurs,
+        entertainers and community voices.
+      </p>
+      <ul class="links links--inline">
+        {links.map((l) => (
+          <li>
+            <ExternalLink href={l.href}>
+              {l.label}
+              <i slot="after" aria-hidden="true">
+                ↗
+              </i>
+            </ExternalLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

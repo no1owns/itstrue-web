@@ -1,0 +1,29 @@
+/* It's True Entertainments design tokens (handoff tokens/design_tokens.json,
+   "design-lead selected working values, not final owner approval").
+   Only tokens the homepage reads are kept. */
+:root {
+  --ground: #101011;
+  --surface: #1c1c1e;
+  --rule: #464344;
+  --border-strong: #8f8a80;
+  --ink: #f4eee3;
+  --ink-muted: #aea9a1;
+  --gold: #e2bb72;
+  --on-gold: #101011;
+  --gold-ink: #e2bb72;
+  --focus: var(--gold);
+  --black: #101011;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-pill: 999px;
+  --glow-gold: 0 0 40px #e2bb7240;
+  --font-display: 'Abril Fatface', Georgia, serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --font-sans: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --dir-kicker: var(--gold-ink);
+}

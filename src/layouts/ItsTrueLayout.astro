@@ -1,0 +1,44 @@
+---
+// Layout for the It's True Entertainments homepage preview. Self-contained:
+// it doesn't load the placeholder site styles used by the interior pages.
+// Pre-launch rules: always noindex, nofollow; no canonical, sitemap,
+// analytics or cookies.
+import '../styles/itstrue/fonts.css';
+import '../styles/itstrue/tokens.css';
+import '../styles/itstrue/home.css';
+import Header from '../components/itstrue/Header.astro';
+import Footer from '../components/itstrue/Footer.astro';
+import { brand } from '../data/home';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:site_name" content={brand.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content={description} />
+  </head>
+  <body class="opt1 smoke-nat">
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

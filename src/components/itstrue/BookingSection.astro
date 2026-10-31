@@ -1,0 +1,84 @@
+---
+// Services and booking. The reference form isn't connected to anything, so
+// this preview shows a contact panel instead: a "Request a Quote" email
+// button plus the owner's email and phone numbers. Nothing is collected or
+// submitted. The form design is kept in BookingForm.astro (not rendered)
+// until a real form service is authorized.
+import { bookingPaths, brand, mailto } from '../../data/home';
+
+const quoteHref = `${mailto}?subject=${encodeURIComponent('Quote request')}`;
+---
+
+<section class="sec booking" id="book" aria-labelledby="b-h">
+  <div class="wrap">
+    <div class="b__head">
+      <div>
+        <p class="k">Services &amp; booking</p>
+        <h2 class="st" id="b-h">
+          Bring the Twin Way to your next project
+        </h2>
+      </div>
+      <div class="b__side">
+        <p class="lede">
+          Tell us what you have in mind and we will reply with a quote. Every request is a quote request; rates are not
+          published.
+        </p>
+      </div>
+    </div>
+    <ul class="b__paths">
+      {bookingPaths.map((p) => (
+        <li>
+          <h3>{p.title}</h3>
+          <p>{p.text}</p>
+        </li>
+      ))}
+    </ul>
+    <div class="b__contact">
+      <a class="btn btn--primary btn--xl" href={quoteHref}>
+        Request a Quote <span aria-hidden="true">↗</span>
+      </a>
+      <p class="b__lines">
+        Or call <a href={brand.phones[0].href}>{brand.phones[0].label}</a>
+        {' or '}
+        <a href={brand.phones[1].href}>{brand.phones[1].label}</a>
+        {', or email '}
+        <a href={mailto}>{brand.email}</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .b__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-6) var(--space-8);
+    margin-top: var(--space-12);
+    padding-top: var(--space-12);
+    border-top: 1px solid var(--rule);
+  }
+  .b__lines {
+    margin: 0;
+    max-width: 34em;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .b__lines a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--gold);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    overflow-wrap: anywhere;
+  }
+  .b__lines a:hover {
+    color: var(--gold);
+  }
+  @media (max-width: 600px) {
+    .b__contact .btn {
+      width: 100%;
+    }
+  }
+</style>

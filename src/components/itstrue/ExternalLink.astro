@@ -1,0 +1,16 @@
+---
+// Link to an outside site: opens in a new tab and says so to screen readers.
+interface Props {
+  href: string;
+  /** Hidden text read after the visible label, e.g. "Moneytakers, opens in a new tab". */
+  context?: string;
+  class?: string;
+}
+const { href, context = 'opens in a new tab', class: className } = Astro.props;
+---
+
+<a class={className} href={href} target="_blank" rel="noopener noreferrer">
+  <slot />
+  <span class="vh"> ({context})</span>
+  <slot name="after" />
+</a>

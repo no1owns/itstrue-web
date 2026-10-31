@@ -1,0 +1,40 @@
+---
+// "Who we are". The reference's "Read the story" link is omitted: there is
+// no story page yet (navigation map).
+import { url } from '../../lib/paths';
+---
+
+<section class="sec who" id="about" aria-labelledby="who-h">
+  <div class="wrap who__grid">
+    <div class="who__copy">
+      <p class="k">Who we are</p>
+      <h2 class="st" id="who-h">
+        The creative home of Twin Chino and TwinCasso
+      </h2>
+      <p class="lede">
+        Identical twin brothers with New York roots and a Baltimore foundation, we bring our own style to music, acting,
+        fashion modeling, tap, dance and media.
+      </p>
+      <p class="body">
+        Through It’s True Entertainments, they bring these disciplines together with a hands-on approach to creating,
+        performing and building opportunities.
+      </p>
+    </div>
+    <figure class="ph who__ph">
+      <img
+        class="bw"
+        src={url('/images/home/home-duo-smiling-ALP05122.jpg')}
+        width="420"
+        height="281"
+        alt="Twin Chino and TwinCasso smiling in a studio portrait, shown in black and white"
+        style="object-position:50% 0"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>
+        <span>Twin Chino</span>
+        <span>TwinCasso</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>

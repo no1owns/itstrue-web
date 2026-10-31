@@ -1,0 +1,33 @@
+---
+// "Our Work": the nine-discipline index. Each whole row is a link; targets
+// come from the navigation map in src/data/home.ts.
+import { disciplines } from '../../data/home';
+---
+
+<section class="sec work w1" id="work" aria-labelledby="w1-h">
+  <div class="wrap">
+    <div class="w1__head">
+      <div>
+        <p class="k">Our work</p>
+        <h2 class="st" id="w1-h">
+          Our Work
+        </h2>
+      </div>
+      <p class="lede">
+        Acting, modeling, dance, music, media, fashion and production under one company. Choose a discipline to explore.
+      </p>
+    </div>
+    <ol class="idx">
+      {disciplines.map((d) => (
+        <li>
+          <a href={d.href}>
+            <span class="no">{d.no}</span>
+            <span class="name">{d.name}</span>
+            <span class="desc">{d.desc}</span>
+            {d.tag && <span class="tag">{d.tag}</span>}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

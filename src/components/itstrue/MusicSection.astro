@@ -1,0 +1,60 @@
+---
+// Moneytakers: official streaming links and the owner-supplied logo, shown
+// unaltered. No audio is embedded.
+import ExternalLink from './ExternalLink.astro';
+import { url } from '../../lib/paths';
+import { channels } from '../../data/home';
+
+const mt = channels.moneytakers;
+const platforms = [
+  { label: 'Apple Music', href: mt.appleMusic },
+  { label: 'Spotify', href: mt.spotify },
+  { label: 'YouTube', href: mt.youtube },
+];
+---
+
+<section class="sec music" id="music" aria-labelledby="m-h">
+  <div class="wrap music__grid2">
+    <div class="music__main">
+      <p class="k">Moneytakers</p>
+      <h2 class="st" id="m-h">
+        Stream the catalog
+      </h2>
+      <p class="lede">Explore the Moneytakers catalog on your favorite streaming platforms.</p>
+      <ul class="links links--big">
+        {platforms.map((p) => (
+          <li>
+            <ExternalLink href={p.href}>
+              {p.label}
+              <i slot="after" aria-hidden="true">
+                ↗
+              </i>
+            </ExternalLink>
+          </li>
+        ))}
+      </ul>
+      <p class="soc">
+        <ExternalLink href={mt.instagram} context="Moneytakers, opens in a new tab">
+          Instagram
+        </ExternalLink>
+        <ExternalLink href={mt.tiktok} context="Moneytakers, opens in a new tab">
+          TikTok
+        </ExternalLink>
+      </p>
+    </div>
+    <figure class="music__logo">
+      <div class="music__frame">
+        <img
+          src={url('/images/home/brand-moneytakers-logo-B036E93D.jpg')}
+          width="240"
+          height="300"
+          alt="Moneytakers logo, a gold MT monogram on black"
+          style="object-position:50% 0"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <figcaption>Moneytakers</figcaption>
+    </figure>
+  </div>
+</section>

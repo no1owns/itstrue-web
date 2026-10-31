@@ -1,0 +1,38 @@
+---
+// Natural-frame smoky hero. The composite is used exactly as exported (no
+// crop, retouch or restyle); the headline stays live text.
+import { url } from '../../lib/paths';
+---
+
+<section class="hero" id="top">
+  <figure class="hero__photo hero__photo--smoke">
+    <img
+      src={url('/images/home/hero_smoke_1440.jpg')}
+      srcset={`${url('/images/home/hero_smoke_1440.jpg')} 1440w, ${url('/images/home/hero_smoke_2880.jpg')} 2880w`}
+      sizes="100vw"
+      width="2880"
+      height="1148"
+      alt="Twin Chino and TwinCasso in a black and white studio portrait against a dark smoky background, looking toward each other"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </figure>
+  <div class="hero__copy">
+    <h1 class="hero__title">
+      <span class="l1">Twin Way.</span> <span class="l2">No Other Way.</span>
+    </h1>
+    <div class="hero__sub">
+      <p class="hero__lede">
+        Acting, modeling, dance, music, hosting, production, podcast and fashion from Twin Chino and TwinCasso.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--xl" href="#book">
+          Book the Twins <span aria-hidden="true">↗</span>
+        </a>
+        <a class="btn btn--secondary" href="#work">
+          Explore Our Work <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
