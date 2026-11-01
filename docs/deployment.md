@@ -4,7 +4,7 @@ The site is a static Astro build published to GitHub Pages by GitHub Actions.
 
 - **Workflow:** `.github/workflows/deploy.yml` runs on every push to `main` (and can be started by hand from the Actions tab). It builds with the official Astro action (`withastro/action`) and publishes with `actions/deploy-pages`.
 - **Checks:** `.github/workflows/ci.yml` runs on every pull request. It runs lint, formatting, type check, asset inventory, build, internal links, and an accessibility scan, and builds under a base path just like Pages does.
-- **Development URL:** `https://no1owns.github.io/moneytakers-web/`
+- **Development URL:** `https://no1owns.github.io/itstrue-web/`
 
 ## One-time GitHub settings (manual)
 
@@ -23,11 +23,11 @@ The site is a static Astro build published to GitHub Pages by GitHub Actions.
 
 Nothing in the code names the repository or the domain. The deploy workflow reads the Pages configuration with `actions/configure-pages` and passes two values to the build:
 
-|                       | `SITE_URL`                  | `BASE_PATH`        |
-| --------------------- | --------------------------- | ------------------ |
-| Project URL (now)     | `https://no1owns.github.io` | `/moneytakers-web` |
-| Custom domain (later) | `https://<domain>`          | _(empty)_          |
-| Local development     | _(empty)_                   | _(empty)_          |
+|                       | `SITE_URL`                  | `BASE_PATH`    |
+| --------------------- | --------------------------- | -------------- |
+| Project URL (now)     | `https://no1owns.github.io` | `/itstrue-web` |
+| Custom domain (later) | `https://<domain>`          | _(empty)_      |
+| Local development     | _(empty)_                   | _(empty)_      |
 
 Every internal link and asset goes through `url()` / `asset()` in `src/lib/paths.ts`, which adds the base path. CI builds under a base path, so a link that skips the helper fails the link check.
 
@@ -75,7 +75,7 @@ npm run validate   # everything CI runs (needs Chromium for the a11y scan)
 To preview exactly what Pages will serve:
 
 ```sh
-BASE_PATH=/moneytakers-web SITE_URL=https://no1owns.github.io npm run build
-BASE_PATH=/moneytakers-web npm run check:links
-BASE_PATH=/moneytakers-web npm run preview   # http://localhost:4321/moneytakers-web/
+BASE_PATH=/itstrue-web SITE_URL=https://no1owns.github.io npm run build
+BASE_PATH=/itstrue-web npm run check:links
+BASE_PATH=/itstrue-web npm run preview   # http://localhost:4321/itstrue-web/
 ```

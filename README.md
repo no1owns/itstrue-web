@@ -1,13 +1,14 @@
 # itstrue-web
 
-Website for Its True Entertainments, a multifaceted entertainment business: podcasts and original shows, music and production, live entertainment and bookings, and clothing and merchandise.
+Website for It's True Entertainments, a multifaceted entertainment business: podcasts and original shows, music and production, live entertainment and bookings, and clothing and merchandise.
 
-**Status:** foundation built. The site has its page structure, content models, media embeds and booking form, plus automated checks and GitHub Pages deployment. Content is clearly labelled placeholder material, and the visual design is a neutral stand-in until the creative direction is reviewed.
+**Status:** pre-launch. The homepage is an owner-review preview of the selected design ("Homepage Work 1"). The other pages (podcasts, music, events, shop and so on) are neutral placeholder pages with clearly labelled temporary content; they aren't linked from the homepage yet. Automated checks and GitHub Pages deployment are in place.
 
 - Development URL: https://no1owns.github.io/itstrue-web/ (`noindex`; published from `main`)
 
 ## Docs
 
+- [Homepage owner-review preview](docs/homepage-preview.md): structure, image rights, navigation decisions, launch blockers
 - [Architecture proposal and decisions](docs/architecture-proposal.md)
 - [Open items: dependencies and decisions](docs/open-items.md)
 - [Content guide](docs/content-guide.md): how to add shows, episodes, releases, events, products and media
@@ -51,7 +52,8 @@ Copy `.env.example` to `.env` for local overrides. All are optional:
 src/
   content.config.ts      content models (schemas for every collection)
   content/               JSON content, one folder per collection
-  data/site.json         site-wide settings
+  data/site.json         site-wide settings (placeholder pages)
+  data/home.ts           homepage copy, links and contact details
   lib/                   content queries, media rules, settings, base-path helpers
   components/
     layout/              header, footer, page header, empty state
@@ -60,10 +62,12 @@ src/
     media/               YouTube, Spotify, media inventory embed, listen-on links
     forms/               booking inquiry form
     seo/                 meta tags, JSON-LD
-  layouts/BaseLayout.astro
+  components/itstrue/    homepage sections, provisional logo, 404 uses the same layout
+  layouts/               ItsTrueLayout (homepage, 404), BaseLayout (placeholder pages)
   pages/                 routes
-  styles/tokens.css      design tokens (placeholder values)
-scripts/                 inventory generator, link and accessibility checks
+  styles/itstrue/        homepage tokens, fonts and styles
+  styles/tokens.css      design tokens for the placeholder pages
+scripts/                 inventory generator, link and accessibility checks, media pruning
 .github/workflows/       CI and GitHub Pages deployment
 ```
 
@@ -71,4 +75,4 @@ Internal links must use `url()` from `src/lib/paths.ts` so they work under the G
 
 ## Media
 
-No video or audio files are committed. Media is embedded from YouTube or Spotify, or linked to where it's hosted. YouTube players load only when the visitor presses play. Every asset is tracked in the media inventory with its rights status, and anything not yet approved stays off the live site.
+Raw owner photos and videos in `public/photos` and `public/videos` are not published: a build step leaves out any that no page uses (see the homepage preview doc). No video or audio files are committed for the site itself. Media is embedded from YouTube or Spotify, or linked to where it's hosted. YouTube players load only when the visitor presses play. Every asset is tracked in the media inventory with its rights status, and anything not yet approved stays off the live site.

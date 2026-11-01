@@ -4,22 +4,28 @@
 // Behaviour follows the handoff's interactions.md and reference/js/nav.js.
 import ParentMark from './ParentMark.astro';
 import { brand, primaryNav } from '../../data/home';
+
+interface Props {
+  /** Prefix for in-page links when the header is used on a page other than the homepage (e.g. the 404). */
+  home?: string;
+}
+const { home = '' } = Astro.props;
 ---
 
 <header class="nav">
-  <a class="brand brand--mark" href="#top" aria-label={`${brand.name}, home`}>
+  <a class="brand brand--mark" href={`${home}#top`} aria-label={`${brand.name}, home`}>
     <ParentMark variant="row" width="260px" />
   </a>
   <nav class="nav__links" aria-label="Primary">
     <ul>
       {primaryNav.map((link) => (
         <li>
-          <a href={link.href}>{link.label}</a>
+          <a href={home + link.href}>{link.label}</a>
         </li>
       ))}
     </ul>
   </nav>
-  <a class="btn btn--primary nav__cta" href="#book" aria-label="Book the Twins">
+  <a class="btn btn--primary nav__cta" href={`${home}#book`} aria-label="Book the Twins">
     <span class="long">Book the Twins</span>
     <span class="short" aria-hidden="true">
       Book
@@ -34,11 +40,11 @@ import { brand, primaryNav } from '../../data/home';
   <ul>
     {primaryNav.map((link) => (
       <li>
-        <a href={link.href}>{link.label}</a>
+        <a href={home + link.href}>{link.label}</a>
       </li>
     ))}
     <li>
-      <a href="#book" class="drawer__book">
+      <a href={`${home}#book`} class="drawer__book">
         Book the Twins
       </a>
     </li>

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Checks that every internal link and asset reference in the built site
 // (dist/) points at a file that exists, and that each one includes the base
-// path (BASE_PATH, e.g. /moneytakers-web on the GitHub Pages project URL).
+// path (BASE_PATH, e.g. /itstrue-web on the GitHub Pages project URL).
 // Run after `npm run build`, with the same BASE_PATH the build used.
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
