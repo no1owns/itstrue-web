@@ -6,7 +6,7 @@ Edit files directly on GitHub or locally. Every change goes through a pull reque
 
 ## Ground rules
 
-- **Only add content MoneyTakers has supplied and approved.** Never write testimonials, credentials, releases, products or performances. Leave a field out rather than guessing; pages hide anything that is missing.
+- **Only add content It's True Entertainments has supplied and approved.** Never write testimonials, credentials, releases, products or performances. Leave a field out rather than guessing; pages hide anything that is missing.
 - **Temporary content must be labelled.** Set `"placeholder": true` on any stand-in entry. Placeholders show on preview builds with a "Temporary content" label and are left out of the live site automatically.
 - **Record every media asset** in the media inventory (below) with its usage rights before using it.
 - **Never commit video or audio files.** Use YouTube or Spotify IDs, or links to where the media is hosted.
@@ -170,7 +170,7 @@ The store itself is external. Each product links out to its page there.
 
 ## Testimonials: `src/content/testimonials/<slug>.json`
 
-Only quotes MoneyTakers supplies, with the speaker's permission. A testimonial appears only when `permissionConfirmed` is `true`.
+Only quotes It's True Entertainments supplies, with the speaker's permission. A testimonial appears only when `permissionConfirmed` is `true`.
 
 ```json
 {

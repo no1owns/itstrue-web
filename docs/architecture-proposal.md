@@ -1,6 +1,8 @@
-# MoneyTakers Website: Architecture and Implementation Proposal
+# It's True Entertainments Website: Architecture and Implementation Proposal
 
-Originally drafted 2026-10-24. Updated 2026-10-25 with confirmed decisions.
+Originally drafted 2026-10-24 under the working name "MoneyTakers". Updated 2026-10-25 with confirmed decisions.
+
+**Naming:** the company is **It's True Entertainments** (with the final S). **Moneytakers** is its music brand and keeps its own name on the site. The repository was renamed from `moneytakers-web` to `itstrue-web`.
 
 Anything marked **Needs confirmation** is an open question. It is not an assumption the build depends on.
 
@@ -12,7 +14,7 @@ The foundation is built (Phase 2). Where a decision below differs from the origi
 | --------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Framework       | **Astro** with TypeScript                                                                   | Confirmed.                                                                                                                                                                                                                                                        |
 | Hosting         | **GitHub Pages**, deployed by GitHub Actions with the official Astro action                 | Replaces the earlier Cloudflare Pages recommendation. Static files only, no server-side functions. See [deployment.md](deployment.md).                                                                                                                            |
-| URL             | GitHub Pages project URL (`https://no1owns.github.io/moneytakers-web/`) during development  | The base path comes from the Pages settings at build time, so moving to the custom domain needs no code change.                                                                                                                                                   |
+| URL             | GitHub Pages project URL (`https://no1owns.github.io/itstrue-web/`) during development      | The base path comes from the Pages settings at build time, so moving to the custom domain needs no code change.                                                                                                                                                   |
 | Domain          | Existing provider, possibly Squarespace. **Needs confirmation**                             | Not connected yet. No DNS changes until approved.                                                                                                                                                                                                                 |
 | Content         | Structured local JSON files in `src/content/`                                               | A CMS can be added later on top of the same files. CMS choice is still open.                                                                                                                                                                                      |
 | Podcasts        | Shows and episodes entered as structured metadata, with external embeds and listening links | **No** feed import, podcast hosting, RSS distribution or YouTube automation for now. Those workflows wait until existing accounts and media sources are confirmed. The feed importer prototyped in commit `d1a6b06` was removed and can be restored from history. |
@@ -28,21 +30,21 @@ What's still open is listed in [open-items.md](open-items.md).
 
 ## 1. Existing project structure and technology
 
-This session has two repositories connected. **Neither one is a MoneyTakers project.**
+This session has two repositories connected. **Neither one is an It's True Entertainments project.**
 
-| Repository                   | What it is                                                                                | Stack                                                                                                                                                                | Relevance to MoneyTakers                                                                                                                                                            |
-| ---------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `no1owns/akintilo-portfolio` | Ayo Akintilo's personal portfolio, actively maintained (52 commits, last push 2026-10-23) | Vite 6 + React 19 SPA, JSON content in `site/content`, Decap CMS at `/admin`, build-time prerender to static HTML, `sharp` image optimization, GitHub Pages workflow | **Pattern reference only.** Its Git-based content model, Decap editor, prerender step and asset-inventory doc are proven patterns we can reuse. Do not build MoneyTakers inside it. |
-| `no1owns/web-portfolio`      | An earlier hand-built personal portfolio (`work.akintilo.com`)                            | Static HTML/CSS/JS, Puppeteer scrape scripts                                                                                                                         | Not relevant.                                                                                                                                                                       |
+| Repository                   | What it is                                                                                | Stack                                                                                                                                                                | Relevance to It's True Entertainments                                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `no1owns/akintilo-portfolio` | Ayo Akintilo's personal portfolio, actively maintained (52 commits, last push 2026-10-23) | Vite 6 + React 19 SPA, JSON content in `site/content`, Decap CMS at `/admin`, build-time prerender to static HTML, `sharp` image optimization, GitHub Pages workflow | **Pattern reference only.** Its Git-based content model, Decap editor, prerender step and asset-inventory doc are proven patterns we can reuse. Do not build the It's True Entertainments site inside it. |
+| `no1owns/web-portfolio`      | An earlier hand-built personal portfolio (`work.akintilo.com`)                            | Static HTML/CSS/JS, Puppeteer scrape scripts                                                                                                                         | Not relevant.                                                                                                                                                                                             |
 
-The account can also reach `ForgeHQ`, `sirenszen-wellness`, `cleanbybelle` and `100MalcolmX`. None of them is named for MoneyTakers.
+The account can also reach `ForgeHQ`, `sirenszen-wellness`, `cleanbybelle` and `100MalcolmX`. None of them is named for It's True Entertainments.
 
 ## 2. Empty repository or existing website?
 
-**Neither. There was no MoneyTakers repository.** This repository, `no1owns/moneytakers-web`, was created on 2026-10-25 for the project and starts empty apart from a README.
+**Neither. There was no It's True Entertainments repository.** This repository was created on 2026-10-25 as `no1owns/moneytakers-web` (now `no1owns/itstrue-web`) and started empty apart from a README.
 
 - **Needs confirmation:** whether the repository should later move to a client-owned GitHub organization for handover.
-- **Needs confirmation:** whether MoneyTakers already has a live website (URL, platform, any SEO equity or URLs to redirect). The "original website proposal" is mentioned in the brief, but I don't have the document. Please share it so the EPK and booking requirements carry over exactly.
+- **Needs confirmation:** whether It's True Entertainments already has a live website (URL, platform, any SEO equity or URLs to redirect). The "original website proposal" is mentioned in the brief, but I don't have the document. Please share it so the EPK and booking requirements carry over exactly.
 
 ## 3. Recommended technical architecture
 
@@ -59,11 +61,11 @@ The account can also reach `ForgeHQ`, `sirenszen-wellness`, `cleanbybelle` and `
 | Commerce          | External platform, embedded or linked (see §6.4)                                                                | No payment handling on our side.                                                                                                                                                                                                                                                                                                         |
 | Hosting           | Static host with serverless functions and per-branch preview URLs (see §7)                                      | Low cost, fast and secure.                                                                                                                                                                                                                                                                                                               |
 
-**Why not reuse the akintilo-portfolio stack directly?** It's a client-rendered React SPA with a custom prerender script. That works for a portfolio. MoneyTakers needs thousands of potential episode pages, structured data and RSS ingestion, and Astro handles all of that natively with less custom code. We should still carry over the Decap CMS setup, the asset-inventory discipline and the "never invent content" policy.
+**Why not reuse the akintilo-portfolio stack directly?** It's a client-rendered React SPA with a custom prerender script. That works for a portfolio. It's True Entertainments needs thousands of potential episode pages, structured data and RSS ingestion, and Astro handles all of that natively with less custom code. We should still carry over the Decap CMS setup, the asset-inventory discipline and the "never invent content" policy.
 
 **Alternatives considered:**
 
-- **Webflow:** fastest for non-technical editors, and a Webflow connector is available in this environment. Its weaknesses are automated RSS/YouTube ingestion, custom media logic and plan costs as CMS items grow. Worth considering if MoneyTakers' team must own the site with no developer involved. **Needs confirmation:** who maintains the site after launch.
+- **Webflow:** fastest for non-technical editors, and a Webflow connector is available in this environment. Its weaknesses are automated RSS/YouTube ingestion, custom media logic and plan costs as CMS items grow. Worth considering if the It's True Entertainments team must own the site with no developer involved. **Needs confirmation:** who maintains the site after launch.
 - **Next.js:** capable, but it brings more runtime complexity than a mostly static brand site needs.
 - **WordPress:** good editor experience, but hosting, plugin and security overhead, and it's harder to keep visually distinctive and fast.
 
@@ -100,7 +102,7 @@ Notes:
 
 - **Book** should be a persistent primary action in the header on every page, because bookings are the main revenue route from the original proposal.
 - **EPK:** **Needs confirmation** on whether it's public, unlisted (shared by link), or has downloadable assets behind a simple access step. Promoters expect a fast, printable/downloadable EPK.
-- **Talent pages** (`/talent/[person]`): include them if MoneyTakers represents multiple artists or hosts. **Needs confirmation.**
+- **Talent pages** (`/talent/[person]`): include them if It's True Entertainments represents multiple artists or hosts. **Needs confirmation.**
 - URL vocabulary ("Entertainment" vs "Live" vs "Bookings") is a brand decision. The structure doesn't depend on it.
 
 ### Reusable components
@@ -228,7 +230,7 @@ Options, ordered by recommendation for a creator/entertainment brand:
 ### 6.5 Events and booking
 
 - Events are CMS entries with ticket links (Eventbrite, DICE, Ticketmaster, Posh, a venue site). The site lists them and doesn't sell tickets. Past events turn into recaps with media automatically.
-- **Optional:** sync from Bandsintown or Songkick if MoneyTakers already uses them. **Needs confirmation.**
+- **Optional:** sync from Bandsintown or Songkick if It's True Entertainments already uses them. **Needs confirmation.**
 - **Booking form fields** (draft): name, organization, email, phone, inquiry type, event date(s), city/venue, event type, audience size, budget range, talent/service requested, details, how they heard about us, and consent. Submissions are emailed to a routed inbox per inquiry type, logged to a sheet or CRM, and the sender gets an auto-reply. **Needs confirmation:** inbox addresses per inquiry type, required fields, and whether budget ranges should be shown.
 
 ### 6.6 Content and asset inventory
@@ -238,7 +240,7 @@ A starter inventory is provided as `docs/asset-inventory.csv`, with columns for 
 `Asset ID, Asset name, URL or file reference, Type, Business category / division, Associated page, Status, Usage rights / approval status, Rights holder / credit, Alt text / caption, Supplied by, Date received, Notes`
 
 - **Status values:** Requested · Received · In review · Approved · Live · Retired
-- **Usage-rights values:** Owned by MoneyTakers · Licensed (terms in notes) · Pending approval · Third-party (credit required) · Not cleared, do not use
+- **Usage-rights values:** Owned by It's True Entertainments · Licensed (terms in notes) · Pending approval · Third-party (credit required) · Not cleared, do not use
 - The inventory (`docs/asset-inventory.csv`) is a **template with no rows**. It contains no invented assets. It should be filled from the client-supplied URLs, with a shared Google Sheet as the editing copy if the client prefers.
 
 ## 7. Deployment and hosting recommendations
@@ -307,7 +309,7 @@ Common setup:
 ### Credentials and access (to be supplied later through secure channels, never in chat or the repository)
 
 - GitHub: repository creation (or ownership decision) and collaborator access
-- Hosting account (Cloudflare/Netlify/Vercel), owned by MoneyTakers if possible
+- Hosting account (Cloudflare/Netlify/Vercel), owned by It's True Entertainments if possible
 - Domain registrar / DNS access
 - Podcast host account (only needed for webhooks; RSS is public)
 - YouTube Data API key (optional; the public channel/playlist RSS works without a key for the latest 15 items, but full archives need the API)
@@ -390,7 +392,7 @@ Each phase ends with a review gate with you before the next one starts.
 
 ## Decisions needed from you to start Phase 0
 
-1. ~~**Where does the code live?**~~ Resolved: `no1owns/moneytakers-web`. Transfer to a client-owned organization later is still Needs confirmation.
+1. ~~**Where does the code live?**~~ Resolved: `no1owns/itstrue-web` (renamed from `moneytakers-web`). Transfer to a client-owned organization later is still Needs confirmation.
 2. **Who edits content after launch?** This decides Decap vs Sanity, or Webflow as an alternative.
 3. ~~**Hosting preference.**~~ Resolved: GitHub Pages.
 4. **Commerce.** Is there an existing store or platform?

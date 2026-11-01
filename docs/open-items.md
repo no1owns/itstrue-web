@@ -4,18 +4,18 @@ Updated 2026-10-25. What's needed before each part of the site can move from pla
 
 ## Decisions
 
-| #   | Decision                                                                                | Blocks                                              | Owner                           |
-| --- | --------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| 1   | Creative direction: type, color, motion, photo/video treatment                          | Replacing the neutral placeholder tokens and layout | Creative director               |
-| 2   | Final navigation labels ("Entertainment" vs "Live" vs "Bookings", Shop vs Merch)        | Nav, URLs                                           | Creative director               |
-| 3   | Form service for booking inquiries (Formspree, Basin, Getform…) and the receiving inbox | Booking form going live                             | Creative director / MoneyTakers |
-| 4   | Commerce platform (Shopify, Fourthwall, a print-on-demand service, or link-out only)    | Real products on `/shop`                            | MoneyTakers                     |
-| 5   | Who edits content after launch, and whether a CMS is needed (Decap, Sanity)             | Editor setup                                        | Creative director               |
-| 6   | Press kit: public, or unlisted and shared by link                                       | EPK visibility                                      | MoneyTakers                     |
-| 7   | Domain, its DNS provider (possibly Squarespace), and cutover timing                     | Custom domain                                       | MoneyTakers                     |
-| 8   | Analytics (privacy-friendly vs GA4) and whether a cookie notice is needed               | Analytics                                           | Creative director               |
-| 9   | Whether the site will feature individual members/talent pages                           | About, EPK                                          | MoneyTakers                     |
-| 10  | Podcast workflow (manual metadata now; automation later?) once accounts are confirmed   | Episode upkeep                                      | Creative director               |
+| #   | Decision                                                                                | Blocks                                              | Owner                                        |
+| --- | --------------------------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------- |
+| 1   | Creative direction: type, color, motion, photo/video treatment                          | Replacing the neutral placeholder tokens and layout | Creative director                            |
+| 2   | Final navigation labels ("Entertainment" vs "Live" vs "Bookings", Shop vs Merch)        | Nav, URLs                                           | Creative director                            |
+| 3   | Form service for booking inquiries (Formspree, Basin, Getform…) and the receiving inbox | Booking form going live                             | Creative director / It's True Entertainments |
+| 4   | Commerce platform (Shopify, Fourthwall, a print-on-demand service, or link-out only)    | Real products on `/shop`                            | It's True Entertainments                     |
+| 5   | Who edits content after launch, and whether a CMS is needed (Decap, Sanity)             | Editor setup                                        | Creative director                            |
+| 6   | Press kit: public, or unlisted and shared by link                                       | EPK visibility                                      | It's True Entertainments                     |
+| 7   | Domain, its DNS provider (possibly Squarespace), and cutover timing                     | Custom domain                                       | It's True Entertainments                     |
+| 8   | Analytics (privacy-friendly vs GA4) and whether a cookie notice is needed               | Analytics                                           | Creative director                            |
+| 9   | Whether the site will feature individual members/talent pages                           | About, EPK                                          | It's True Entertainments                     |
+| 10  | Podcast workflow (manual metadata now; automation later?) once accounts are confirmed   | Episode upkeep                                      | Creative director                            |
 
 ## Content and assets needed
 

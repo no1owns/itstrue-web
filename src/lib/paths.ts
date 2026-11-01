@@ -1,9 +1,9 @@
-// Internal URLs must include the deployment base path (e.g. /moneytakers-web
+// Internal URLs must include the deployment base path (e.g. /itstrue-web
 // on the GitHub Pages project URL, nothing on a custom domain). Build every
 // internal link and public asset URL with url().
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-/** url('/podcasts/') → '/moneytakers-web/podcasts/' on the project URL. */
+/** url('/podcasts/') → '/itstrue-web/podcasts/' on the project URL. */
 export function url(path: string) {
   if (!path.startsWith('/')) throw new Error(`url() expects a root-relative path, got "${path}"`);
   return base + path;

@@ -199,7 +199,7 @@ const products = defineCollection({
   }),
 });
 
-/** Only quotes MoneyTakers has supplied with the speaker's permission. */
+/** Only quotes It's True Entertainments has supplied with the speaker's permission. */
 const testimonials = defineCollection({
   loader: json('testimonials'),
   schema: z.object({

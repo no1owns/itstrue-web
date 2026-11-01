@@ -6,7 +6,7 @@ import { pruneUnusedMedia } from './scripts/prune-unused-media.mjs';
 // Deployment settings come from the environment, so nothing here names the
 // repository or the domain. On GitHub Pages the deploy workflow sets
 // SITE_URL and BASE_PATH from the Pages configuration:
-//   project URL:    SITE_URL=https://no1owns.github.io  BASE_PATH=/moneytakers-web
+//   project URL:    SITE_URL=https://no1owns.github.io  BASE_PATH=/itstrue-web
 //   custom domain:  SITE_URL=https://example.com        BASE_PATH= (empty)
 // Locally both are empty and the site is served from the root.
 const site = process.env.SITE_URL || undefined;

@@ -4,9 +4,16 @@
 import ParentMark from './ParentMark.astro';
 import SocialIcon from './SocialIcon.astro';
 import { brand, channels, footerBrands, footerExplore, mailto } from '../../data/home';
+
+interface Props {
+  /** Prefix for in-page links when used on a page other than the homepage. */
+  home?: string;
+}
+const { home = '' } = Astro.props;
 ---
 
 <footer class="mt-footer">
+  <h2 class="vh">Site links and contact details</h2>
   <div class="mt-footer__grid">
     <div class="mt-footer__brand">
       <ParentMark variant="stack" width="250px" class="foot-mark" />
@@ -31,7 +38,7 @@ import { brand, channels, footerBrands, footerExplore, mailto } from '../../data
         >
           <SocialIcon name="tiktok" />
         </a>
-        <a class="follow__all" href="#follow">
+        <a class="follow__all" href={`${home}#follow`}>
           All channels
         </a>
       </div>
@@ -41,7 +48,7 @@ import { brand, channels, footerBrands, footerExplore, mailto } from '../../data
       <ul>
         {footerExplore.map((l) => (
           <li>
-            <a href={l.href}>{l.label}</a>
+            <a href={home + l.href}>{l.label}</a>
           </li>
         ))}
       </ul>
@@ -51,7 +58,7 @@ import { brand, channels, footerBrands, footerExplore, mailto } from '../../data
       <ul>
         {footerBrands.map((l) => (
           <li>
-            <a href={l.href}>{l.label}</a>
+            <a href={home + l.href}>{l.label}</a>
           </li>
         ))}
       </ul>
